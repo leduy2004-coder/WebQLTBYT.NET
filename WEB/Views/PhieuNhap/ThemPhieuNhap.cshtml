@@ -1,0 +1,360 @@
+﻿@model WEB.Models.Response.ThemPNResponse
+
+@{
+    ViewData["Title"] = "Thêm Phiếu Nhập";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid my-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-dark">Thêm Phiếu Nhập</h2>
+        <a href="@Url.Action("Index", "PhieuNhap")" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <!-- Form -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form id="phieuNhapForm" asp-action="Create" asp-controller="PhieuNhap" method="post">
+                <!-- Chi Tiet Phieu Nhap Table -->
+                <h5 class="card-title mb-4">Chi Tiết Phiếu Nhập</h5>
+                <table class="table table-hover" id="chiTietTable">
+                    <thead>
+                        <tr>
+                            <th>Mã Thiết Bị</th>
+                            <th>Tên Thiết Bị</th>
+                            <th>Số Lượng Tổng</th>
+                            <th>Số Lượng Còn</th>
+                            <th>Số Lượng Nhập</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="chiTietTableBody"></tbody>
+                </table>
+
+                <!-- Hidden Inputs for Form Submission -->
+                <div id="hiddenInputs"></div>
+
+                <!-- Add and Submit Buttons -->
+                <button type="button" class="btn btn-success mb-4" data-bs-toggle="modal" data-bs-target="#thietBiModal">
+                    <i class="fas fa-plus"></i> Thêm
+                </button>
+                <button type="submit" class="btn btn-primary mb-4 float-end" id="submitForm">Kết thúc</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ThietBi Selection Modal -->
+<div class="modal fade" id="thietBiModal" tabindex="-1" aria-labelledby="thietBiModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="thietBiModalLabel">Chọn Thiết Bị</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Search Bar -->
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="searchThietBi" placeholder="Tìm kiếm thiết bị theo tên...">
+                </div>
+
+                <!-- ThietBi Table -->
+                <table class="table table-hover" id="thietBiTable">
+                    <thead>
+                        <tr>
+                            <th>Mã Thiết Bị</th>
+                            <th>Tên Thiết Bị</th>
+                            <th>Số Lượng Tổng</th>
+                            <th>Số Lượng Còn</th>
+                        </tr>
+                    </thead>
+                    <tbody id="thietBiTableBody">
+                        @foreach (var tb in Model.listTB)
+                        {
+                            <tr class="thiet-bi-row" data-ma="@tb.MaThietBi" data-ten="@tb.TenThietBi" data-so-luong-tong="@tb.SoLuongTong" data-so-luong-con="@tb.SoLuongCon">
+                                <td>@tb.MaThietBi</td>
+                                <td>@tb.TenThietBi</td>
+                                <td>@tb.SoLuongTong</td>
+                                <td>@tb.SoLuongCon</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <!-- Selected ThietBi Details -->
+                <div id="thietBiDetails" class="mt-4" style="display: none;">
+                    <h6>Thông Tin Thiết Bị Đã Chọn</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Mã Thiết Bị</label>
+                            <input type="text" class="form-control" id="selectedMaThietBi" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tên Thiết Bị</label>
+                            <input type="text" class="form-control" id="selectedTenThietBi" readonly>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Số Lượng Tổng</label>
+                            <input type="text" class="form-control" id="selectedSoLuongTong" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số Lượng Còn</label>
+                            <input type="text" class="form-control" id="selectedSoLuongCon" readonly>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Số Lượng Nhập</label>
+                            <input type="number" class="form-control" id="soLuong" min="1" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="hoanTatBtn" disabled>Hoàn tất</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Duplicate Alert Modal -->
+<div class="modal fade" id="duplicateAlertModal" tabindex="-1" aria-labelledby="duplicateAlertModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content custom-alert">
+            <div class="modal-header" style="background-color: #dc3545; color: white; border-bottom: none; border-radius: 10px 10px 0 0;">
+                <h5 class="modal-title" id="duplicateAlertModalLabel"><i class="fas fa-exclamation-triangle me-2"></i> Cảnh Báo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <p class="mb-0" style="font-size: 1.1rem; color: #333;">Thiết bị này đã được chọn. Vui lòng chọn thiết bị khác.</p>
+            </div>
+            <div class="modal-footer justify-content-center" style="border-top: none;">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+        border: none;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .card-title {
+        font-weight: bold;
+        color: #2A5C8E;
+        margin-bottom: 20px;
+    }
+
+    .table th {
+        background-color: #2A5C8E;
+        color: white;
+        text-transform: uppercase;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .btn-primary {
+        background-color: #2A5C8E;
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #1A3C5E;
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+    .btn-success {
+        background-color: #28a745;
+        border: none;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border: none;
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+    .form-label {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .modal-content {
+        border-radius: 10px;
+    }
+
+    .modal-header {
+        background-color: #2A5C8E;
+        color: white;
+        border-bottom: none;
+    }
+
+    .modal-title {
+        font-weight: bold;
+    }
+
+    .btn-close {
+        filter: invert(1);
+    }
+
+    .thiet-bi-row:hover {
+        background-color: #f0f0f0;
+        cursor: pointer;
+    }
+
+    /* Custom Alert Styling */
+    .custom-alert {
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+    }
+
+        .custom-alert .modal-body {
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        .custom-alert .btn-primary {
+            background-color: #2A5C8E;
+            border: none;
+            padding: 8px 20px;
+            font-weight: 500;
+        }
+
+            .custom-alert .btn-primary:hover {
+                background-color: #1A3C5E;
+            }
+</style>
+
+<script>
+    let chiTietIndex = 0;
+    const chiTietList = [];
+
+    // Search ThietBi
+    document.getElementById('searchThietBi').addEventListener('input', function (e) {
+        const searchText = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('#thietBiTableBody tr');
+        rows.forEach(row => {
+            const tenThietBi = row.getAttribute('data-ten').toLowerCase();
+            row.style.display = tenThietBi.includes(searchText) ? '' : 'none';
+        });
+    });
+
+    // Select ThietBi Row
+    document.querySelectorAll('.thiet-bi-row').forEach(row => {
+        row.addEventListener('click', function () {
+            document.querySelectorAll('.thiet-bi-row').forEach(r => r.classList.remove('table-active'));
+            this.classList.add('table-active');
+            const maThietBi = this.getAttribute('data-ma');
+            const tenThietBi = this.getAttribute('data-ten');
+            const soLuongTong = this.getAttribute('data-so-luong-tong');
+            const soLuongCon = this.getAttribute('data-so-luong-con');
+            document.getElementById('selectedMaThietBi').value = maThietBi;
+            document.getElementById('selectedTenThietBi').value = tenThietBi;
+            document.getElementById('selectedSoLuongTong').value = soLuongTong;
+            document.getElementById('selectedSoLuongCon').value = soLuongCon;
+            document.getElementById('thietBiDetails').style.display = 'block';
+            document.getElementById('hoanTatBtn').disabled = false;
+        });
+    });
+
+    // Hoan Tat Button
+    document.getElementById('hoanTatBtn').addEventListener('click', function () {
+        const maThietBi = document.getElementById('selectedMaThietBi').value;
+        const tenThietBi = document.getElementById('selectedTenThietBi').value;
+        const soLuongTong = document.getElementById('selectedSoLuongTong').value;
+        const soLuongCon = document.getElementById('selectedSoLuongCon').value;
+        const soLuong = document.getElementById('soLuong').value;
+
+        if (!maThietBi || !soLuong) {
+            alert('Vui lòng điền đầy đủ thông tin.');
+            return;
+        }
+
+        // Check for duplicate MaThietBi
+        if (chiTietList.some(item => item.maThietBi === maThietBi)) {
+            const modal = new bootstrap.Modal(document.getElementById('duplicateAlertModal'));
+            modal.show();
+            return;
+        }
+
+        // Add to chiTietList
+        chiTietList.push({ maThietBi, tenThietBi, soLuongTong, soLuongCon, soLuong });
+
+        // Update Table
+        const tableBody = document.getElementById('chiTietTableBody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td>${maThietBi}</td>
+            <td>${tenThietBi}</td>
+            <td>${soLuongTong}</td>
+            <td>${soLuongCon}</td>
+            <td>${soLuong}</td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm remove-chi-tiet"><i class="fas fa-trash"></i></button>
+            </td>
+        `;
+        tableBody.appendChild(newRow);
+
+        // Update Hidden Inputs for Form Submission
+        updateHiddenInputs();
+
+        // Reset Modal
+        document.getElementById('thietBiDetails').style.display = 'none';
+        document.getElementById('soLuong').value = '';
+        document.getElementById('hoanTatBtn').disabled = true;
+        document.querySelectorAll('.thiet-bi-row').forEach(r => r.classList.remove('table-active'));
+        const modal = bootstrap.Modal.getInstance(document.getElementById('thietBiModal'));
+        modal.hide();
+
+        // Attach Remove Event to New Row
+        newRow.querySelector('.remove-chi-tiet').addEventListener('click', function () {
+            const index = chiTietList.findIndex(item => item.maThietBi === maThietBi && item.soLuong === soLuong);
+            if (index !== -1) {
+                chiTietList.splice(index, 1);
+                newRow.remove();
+                updateHiddenInputs();
+            }
+        });
+    });
+
+    function updateHiddenInputs() {
+        const hiddenInputs = document.getElementById('hiddenInputs');
+        hiddenInputs.innerHTML = '';
+        chiTietList.forEach((item, index) => {
+            hiddenInputs.innerHTML += `
+                <input type="hidden" name="ChiTietPhieuNhaps[${index}].MaThietBi" value="${item.maThietBi}">
+                <input type="hidden" name="ChiTietPhieuNhaps[${index}].SoLuong" value="${item.soLuong}">
+            `;
+        });
+    }
+</script>

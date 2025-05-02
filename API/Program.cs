@@ -1,15 +1,49 @@
+
+
+using API.Model;
+using API.Model.Impl;
+using Microsoft.EntityFrameworkCore;
+
+
 var builder = WebApplication.CreateBuilder(args);
+// Cấu hình CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost7226", builder =>
+    {
+        builder.WithOrigins("https://localhost:7226")  // Cho phép truy cập từ localhost:7226
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+    });
+});
+// Cấu hình DbContext
+builder.Services.AddDbContextPool<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection")));
 
-// Add services to the container.
+// Thêm các repository với Dependency Injection
 
+builder.Services.AddTransient<INguoiDungRepository, NguoiDungRepository>();
+builder.Services.AddTransient<IThietBiRepository, ThietBiRepository>();
+builder.Services.AddTransient<ICTPhieuNhapRepository, CTPhieuNhapRepository>();
+builder.Services.AddTransient<IPhieuNhapRepository, PhieuNhapRepository>();
+
+//  Thêm Controllers
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddMemoryCache();
+
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "DAPM",
+        Version = "v1"
+    });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -21,5 +55,5 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
+app.UseCors("AllowLocalhost7226");
 app.Run();

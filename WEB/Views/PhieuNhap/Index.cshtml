@@ -1,0 +1,180 @@
+﻿@model List<WEB.Models.PhieuNhap>
+
+@{
+    ViewData["Title"] = "Danh sách Phiếu Nhập";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid my-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-dark">Danh sách Phiếu Nhập</h2>
+        <a href="@Url.Action("ThemPhieuNhap", "PhieuNhap")" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Thêm phiếu nhập
+        </a>
+    </div>
+   
+    <!-- Search Form -->
+    <div class="mb-4">
+        <form method="get" asp-action="Index" asp-controller="PhieuNhap" class="d-flex align-items-center">
+            <div class="input-group w-50">
+                <input type="number" class="form-control me-2" name="maPN" placeholder="Tìm theo Mã Phiếu Nhập (số)" value="@(ViewBag.MaPNFilter ?? "")">
+                <input type="date" class="form-control me-2" name="ngayNhap" value="@(ViewBag.NgayNhapFilter ?? "")">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Tìm kiếm</button>
+            </div>
+            @if (!string.IsNullOrEmpty(ViewBag.MaPNFilter) || !string.IsNullOrEmpty(ViewBag.NgayNhapFilter))
+            {
+                <a href="@Url.Action("Index", "PhieuNhap")" class="btn btn-secondary ms-2">Xóa bộ lọc</a>
+            }
+        </form>
+    </div>
+
+    <!-- Phieu Nhap Table -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Mã Phiếu Nhập</th>
+                        <th>Ngày Nhập</th>
+                        <th>Mã Người Gửi</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var phieuNhap in Model)
+                        {
+                            <tr>
+                                <td>@phieuNhap.MaPhieuNhap</td>
+                                <td>@phieuNhap.NgayNhap.ToString("dd/MM/yyyy")</td>
+                                <td>@phieuNhap.MaNguoiDung</td>
+                                <td>
+                                    <a href="@Url.Action("ChiTietPhieuNhap", "PhieuNhap", new { maPN = phieuNhap.MaPhieuNhap })" class="btn btn-info btn-sm">
+                                        <i class="fas fa-eye"></i> Xem chi tiết
+                                    </a>
+                                    <button class="btn btn-danger btn-sm" onclick="confirmDelete('@phieuNhap.MaPhieuNhap')">
+                                        <i class="fas fa-trash"></i> Xóa
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center">Không có phiếu nhập nào.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deletePhieuNhapModal" tabindex="-1" aria-labelledby="deletePhieuNhapModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deletePhieuNhapModalLabel">Xác nhận Xóa Phiếu Nhập</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa phiếu nhập <strong id="deleteMaPhieuNhap"></strong> không?</p>
+                <form id="deleteForm" method="post" asp-action="Delete" asp-controller="PhieuNhap">
+                    <input type="hidden" id="deleteMaPhieuNhapInput" name="maPhieuNhap">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" form="deleteForm" class="btn btn-danger">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+        border: none;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .table th {
+        background-color: #2A5C8E;
+        color: white;
+        text-transform: uppercase;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .btn-primary {
+        background-color: #2A5C8E;
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #1A3C5E;
+        }
+
+    .btn-info {
+        background-color: #17a2b8;
+        border: none;
+    }
+
+        .btn-info:hover {
+            background-color: #138496;
+        }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border: none;
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+    .modal-content {
+        border-radius: 10px;
+    }
+
+    .modal-header {
+        background-color: #2A5C8E;
+        color: white;
+        border-bottom: none;
+    }
+
+    .modal-title {
+        font-weight: bold;
+    }
+
+    .btn-close {
+        filter: invert(1);
+    }
+</style>
+
+<script>
+    function confirmDelete(maPhieuNhap) {
+        document.getElementById('deleteMaPhieuNhap').innerText = maPhieuNhap;
+        document.getElementById('deleteMaPhieuNhapInput').value = maPhieuNhap;
+        const modal = new bootstrap.Modal(document.getElementById('deletePhieuNhapModal'));
+        modal.show();
+    }
+</script>

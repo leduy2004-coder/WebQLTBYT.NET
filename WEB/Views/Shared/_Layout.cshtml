@@ -1,49 +1,224 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - WEB</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/WEB.styles.css" asp-append-version="true" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Equipment</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" rel="stylesheet" />
+    <!-- Custom CSS -->
+    <link href="~/css/global.css" rel="stylesheet" />
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">WEB</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+    @{
+        var fullName = Context.Session.GetString("FullName");
+        var userRole = Context.Session.GetInt32("Role") ?? 5; 
+    }
+
+    @if (TempData["Message"] != null)
+    {
+        var messageType = TempData["MessageType"]?.ToString() ?? "danger";
+        <div id="toast">
+            <div class="toast toast-@(messageType.ToLower())">
+                <div class="toast-icon">
+                    @if (messageType.ToLower() == "success")
+                    {
+                        <i class="fa-solid fa-circle-check"></i>
+                    }
+                    else if (messageType.ToLower() == "warning")
+                    {
+                        <i class="fa-solid fa-exclamation-circle"></i>
+                    }
+                    else
+                    {
+                        <i class="fa-solid fa-times-circle"></i>
+                    }
+                </div>
+                <div class="toast-body">
+                    <h3 class="toast-title">@char.ToUpper(messageType[0])@messageType.Substring(1)</h3>
+                    <p class="toast-mess">@TempData["Message"]</p>
+                </div>
+                <div class="toast-close" onclick="closeToast(this)">
+                    <i class="fa-solid fa-xmark"></i>
                 </div>
             </div>
-        </nav>
+        </div>
+    }
+
+    <!-- Header -->
+    <header>
+        <div class="header-top">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="header-logo">
+                        EQUIPMENT
+                    </div>
+                    <div class="header-info">
+                        <span><i class="fas fa-phone"></i> SỐ LIÊN LẠC: (094) 681-225-365</span>
+                        <span><i class="fas fa-clock"></i> GIỜ LÀM VIỆC: 08:00 - 20:00 Mỗi ngày</span>
+                        <span><i class="fas fa-map-marker-alt"></i> ĐỊA CHỈ: Đà Nẵng</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="header-bottom">
+            <div class="container">
+                <ul class="nav align-items-center">
+                    @if (userRole == 1) // Admin
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Thiết bị</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Đơn mượn</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Đơn sách thiết bị</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Đơn sửa chữa thiết bị</a>
+                        </li>
+                    }
+                    else if (userRole == 2) // Manage
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Thiết bị</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Đơn mượn</a>
+                        </li>
+                    }
+                    else if (userRole == 3) // Outbound
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Thiết bị</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Đơn mượn</a>
+                        </li>
+                    }
+                    else if (userRole == 4) // Inbound
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Thiết bị</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Danh mục TB</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "PhieuNhap")">Phiếu nhập</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Phiếu trả</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Thống kê</a>
+                        </li>
+                    }
+                    else if (userRole == 5) // AdminStaff
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Thiết bị</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Đơn mượn</a>
+                        </li>
+                    }
+
+
+                    <li class="nav-item nav-search">
+                        <form asp-action="Search" asp-controller="Equipment" method="get">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="query" placeholder="Tìm kiếm">
+                                <button class="btn" type="submit"><i class="fas fa-search"></i></button>
+                            </div>
+                        </form>
+                    </li>
+                    <li class="nav-item ms-auto">
+                        @if (fullName != null)
+                        {
+                            <div class="dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" id="doctorDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    @fullName
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="doctorDropdown">
+                                    <li><a class="dropdown-item" href="@Url.Action("logout", "DangNhap")">Đăng xuất</a></li>
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <a class="nav-link" href="@Url.Action("loginView", "Login")">Đăng nhập</a>
+                        }
+                    </li>
+                </ul>
+            </div>
+        </div>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+    <!-- Main Content -->
+    <div class="app-content" style="min-height: 700px">
+        <div class="container">
+            <div class="row justify-content-center">
+                @RenderBody()
+            </div>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <!-- Footer -->
+    <footer>
         <div class="container">
-            &copy; 2025 - WEB - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="row">
+                <div class="col-md-3 col-sm-12">
+                    <div class="footer-logo">EQUIPMENT</div>
+                    <div class="footer-tagline">LEADING THE WAY IN MEDICAL EXCELLENCE, TRUSTED CARE</div>
+                </div>
+                <div class="col-md-3 col-sm-12">
+                    <h5>IMPORTANT LINKS</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">Appointment</a></li>
+                        <li><a href="#">Doctors</a></li>
+                        <li><a href="#">Services</a></li>
+                        <li><a href="#">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 col-sm-12">
+                    <h5>CONTACT US</h5>
+                    <ul class="list-unstyled">
+                        <li>Call: (237) 681-225-365</li>
+                        <li>Email: <a href="mailto:info@example.com">info@example.com</a></li>
+                        <li>Address: 0123 Some place, Some country</li>
+                    </ul>
+                </div>
+                <div class="col-md-3 col-sm-12">
+                    <h5>NEWSLETTER</h5>
+                    <div class="input-group mb-3">
+                        <input type="email" class="form-control newsletter-input" placeholder="Enter your email address">
+                        <button class="newsletter-button"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                    <div class="footer-social-icons" style="
+                         display: flex;
+                         ">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 HOSPITAL'S NAME ALL RIGHTS RESERVED BY PYTHEC-LTD</p>
+            </div>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        function closeToast(element) {
+            element.parentElement.style.display = 'none';
+        }
+    </script>
 </body>
 </html>

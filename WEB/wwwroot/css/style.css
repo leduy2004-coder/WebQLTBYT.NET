@@ -1,0 +1,109 @@
+﻿.nav-tabs .nav-link {
+    color: #2A5C8E;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+    .nav-tabs .nav-link.active {
+        background-color: #2A5C8E;
+        color: white;
+        border: none;
+    }
+
+.equipment-card {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+    .equipment-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+.equipment-image {
+    position: relative;
+    overflow: hidden;
+}
+
+    .equipment-image img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+.equipment-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(42, 92, 142, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.equipment-card:hover .equipment-overlay {
+    opacity: 1;
+}
+
+.equipment-overlay .btn {
+    font-size: 0.9rem;
+    padding: 5px 15px;
+}
+
+.equipment-info {
+    padding: 15px;
+    text-align: center;
+}
+
+.equipment-name {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.equipment-quantity {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0;
+}
+
+.btn-primary {
+    background-color: #2A5C8E;
+    border: none;
+}
+
+    .btn-primary:hover {
+        background-color: #1A3C5E;
+    }
+
+.btn-secondary {
+    background-color: #A3CFFA;
+    color: #1A3C5E;
+    border: none;
+}
+
+    .btn-secondary:hover {
+        background-color: #8BB8F5;
+    }
+
+.pagination .page-link {
+    color: #2A5C8E;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #2A5C8E;
+    border-color: #2A5C8E;
+    color: white;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+}

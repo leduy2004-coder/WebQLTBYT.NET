@@ -1,0 +1,114 @@
+﻿@model WEB.Models.Response.CTPhieuNhapResponse
+
+@{
+    ViewData["Title"] = "Chi Tiết Phiếu Nhập";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid my-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-dark">Chi Tiết Phiếu Nhập: @Model.PhieuNhap?.MaPhieuNhap</h2>
+        <a href="@Url.Action("Index", "PhieuNhap")" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <!-- Phieu Nhap Details -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Thông tin Phiếu Nhập</h5>
+            <dl class="row">
+                <dt class="col-sm-3">Mã Phiếu Nhập</dt>
+                <dd class="col-sm-9">@Model.PhieuNhap?.MaPhieuNhap</dd>
+                <dt class="col-sm-3">Ngày Nhập</dt>
+                <dd class="col-sm-9">@Model.PhieuNhap?.NgayNhap.ToString("dd/MM/yyyy")</dd>
+                <dt class="col-sm-3">Mã Người Dùng</dt>
+                <dd class="col-sm-9">@Model.PhieuNhap?.MaNguoiDung</dd>
+            </dl>
+        </div>
+    </div>
+
+    <!-- Chi Tiet Phieu Nhap Table -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">Chi Tiết Phiếu Nhập</h5>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Mã Chi Tiết</th>
+                        <th>Mã Thiết Bị</th>
+                        <th>Tên Thiết Bị</th>
+                        <th>Số Lượng Nhập</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.ChiTietPhieuNhaps != null && Model.ChiTietPhieuNhaps.Any())
+                    {
+                        foreach (var chiTiet in Model.ChiTietPhieuNhaps)
+                        {
+                            <tr>
+                                <td>@chiTiet.MaCT</td>
+                                <td>@chiTiet.MaThietBi</td>
+                                <td>@chiTiet.ThietBi?.TenThietBi</td>
+
+                                <td>@chiTiet.SoLuong</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center">Không có chi tiết phiếu nhập nào.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+        border: none;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .card-title {
+        font-weight: bold;
+        color: #2A5C8E;
+        margin-bottom: 20px;
+    }
+
+    .table th {
+        background-color: #2A5C8E;
+        color: white;
+        text-transform: uppercase;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+    .row dt {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .row dd {
+        color: #666;
+    }
+</style>
