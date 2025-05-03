@@ -1,0 +1,281 @@
+﻿@model WEB.Models.Response.DuyetPhieuTraResponse
+
+@{
+    ViewData["Title"] = "Quản Lý Phiếu Trả";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid my-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 sidebar">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Menu</h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active nav-link-style" href="#danhSachPhieuTra" data-bs-toggle="tab"><i class="fas fa-list me-2"></i> Danh Sách Phiếu Trả</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-style" href="#duyetPhieuTra" data-bs-toggle="tab"><i class="fas fa-check-circle me-2"></i> Duyệt Phiếu Trả</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="tab-content">
+                <!-- Danh Sách Phiếu Trả -->
+                <div class="tab-pane fade show active" id="danhSachPhieuTra">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Danh Sách Phiếu Trả</h5>
+                            <!-- Search Form -->
+                            <div class="mb-4">
+                                <form method="get" asp-action="Index" asp-controller="DuyetPhieuTra" class="d-flex align-items-center">
+                                    <div class="input-group w-50">
+                                        <input type="number" class="form-control me-2" name="maPT" placeholder="Tìm theo Mã Phiếu Trả" value="@(ViewBag.MaPTFilter ?? "")">
+                                        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Tìm kiếm</button>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(ViewBag.MaPTFilter))
+                                    {
+                                        <a href="@Url.Action("Index", "DuyetPhieuTra")" class="btn btn-secondary ms-2">Xóa bộ lọc</a>
+                                    }
+                                </form>
+                            </div>
+
+                            <!-- Approved PhieuTra Table -->
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Mã Phiếu Trả</th>
+                                        <th>Người Gửi</th>
+                                        <th>Người Duyệt</th>
+                                        <th>Ngày Trả</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.ApprovedPhieuTraList == null || !Model.ApprovedPhieuTraList.Any())
+                                    {
+                                        <tr>
+                                            <td colspan="5" class="text-center">Không có phiếu trả nào đã duyệt.</td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        foreach (var phieuTra in Model.ApprovedPhieuTraList)
+                                        {
+                                            <tr class="phieu-tra-row" data-ma="@phieuTra.MaPhieuTra" style="cursor: pointer;">
+                                                <td>@phieuTra.MaPhieuTra</td>
+                                                <td>@phieuTra.MaNguoiGui</td>
+                                                <td>@phieuTra.MaNguoiDuyet</td>
+                                                <td>@phieuTra.NgayTra.ToString("dd/MM/yyyy")</td>
+                                                <td>
+                                                    <button type="button" class="btn btn-info btn-sm view-chi-tiet" data-ma="@phieuTra.MaPhieuTra">
+                                                        <i class="fas fa-eye"></i> Chi tiết
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Duyệt Phiếu Trả -->
+                <div class="tab-pane fade" id="duyetPhieuTra">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Duyệt Phiếu Trả</h5>
+                            <form id="approveForm" method="post" asp-action="Approve" asp-controller="DuyetPhieuTra">
+                                <!-- Unapproved PhieuTra Table -->
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th><input type="checkbox" id="selectAll"></th>
+                                            <th>Mã Phiếu Trả</th>
+                                            <th>Người Gửi</th>
+                                            <th>Ngày Trả</th>
+                                            <th>Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.UnapprovedPhieuTraList == null || !Model.UnapprovedPhieuTraList.Any())
+                                        {
+                                            <tr>
+                                                <td colspan="5" class="text-center">Không có phiếu trả nào cần duyệt.</td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            foreach (var phieuTra in Model.UnapprovedPhieuTraList)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <input type="checkbox" name="selectedPhieuTraIds" value="@phieuTra.MaPhieuTra" class="select-item">
+                                                    </td>
+                                                    <td>@phieuTra.MaPhieuTra</td>
+                                                    <td>@phieuTra.MaNguoiGui</td>
+                                                    <td>@phieuTra.NgayTra.ToString("dd/MM/yyyy")</td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-info btn-sm view-chi-tiet" data-ma="@phieuTra.MaPhieuTra">
+                                                            <i class="fas fa-eye"></i> Chi tiết
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+
+                                <!-- Approve Button -->
+                                @if (Model.UnapprovedPhieuTraList != null && Model.UnapprovedPhieuTraList.Any())
+                                {
+                                    <button type="submit" class="btn btn-primary mt-3">Duyệt Phiếu Trả</button>
+                                }
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chi Tiet Phieu Tra Modal -->
+<div class="modal fade" id="chiTietPhieuTraModal" tabindex="-1" aria-labelledby="chiTietPhieuTraModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #2A5C8E; color: white; border-bottom: none;">
+                <h5 class="modal-title" id="chiTietPhieuTraModalLabel">Chi Tiết Phiếu Trả</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="chiTietPhieuTraContent">
+                <!-- Content will be loaded via AJAX -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .nav-link-style {
+        color: #2A5C8E;
+        font-weight: 500;
+    }
+
+        .nav-link-style:hover,
+        .nav-link-style.active {
+            color: #1A3C5E;
+            background-color: #f0f0f0;
+        }
+
+    .card {
+        border-radius: 10px;
+        border: none;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .card-title {
+        font-weight: bold;
+        color: #2A5C8E;
+        margin-bottom: 20px;
+    }
+
+    .table th {
+        background-color: #2A5C8E;
+        color: white;
+        text-transform: uppercase;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .btn-primary {
+        background-color: #2A5C8E;
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #1A3C5E;
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+    .btn-info {
+        background-color: #17a2b8;
+        border: none;
+    }
+
+        .btn-info:hover {
+            background-color: #138496;
+        }
+
+    /* Sidebar Styling to Prevent Overlap with Header */
+    .sidebar {
+        margin-top: 20px; /* Add space below the header */
+        position: sticky;
+        top: 80px; /* Adjust based on header height */
+        z-index: 1; /* Ensure it doesn't overlap with other elements */
+    }
+</style>
+
+<script>
+    // Initialize Bootstrap Tabs
+    document.addEventListener('DOMContentLoaded', function () {
+        var triggerTabList = [].slice.call(document.querySelectorAll('a[data-bs-toggle="tab"]'));
+        triggerTabList.forEach(function (triggerEl) {
+            var tabTrigger = new bootstrap.Tab(triggerEl);
+            triggerEl.addEventListener('click', function (event) {
+                event.preventDefault();
+                tabTrigger.show();
+            });
+        });
+
+        // Ensure the active tab is shown on load
+        var activeTab = document.querySelector('a.nav-link-style.active');
+        if (activeTab) {
+            new bootstrap.Tab(activeTab).show();
+        }
+    });
+
+    // Select All Checkboxes
+    document.getElementById('selectAll').addEventListener('change', function () {
+        const checkboxes = document.querySelectorAll('.select-item');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+    });
+
+    // Load Chi Tiet Phieu Tra via AJAX
+    document.querySelectorAll('.view-chi-tiet').forEach(button => {
+        button.addEventListener('click', function () {
+            const maPT = this.getAttribute('data-ma');
+            fetch(`/DuyetPhieuTra/ChiTietPhieuTra?maPT=${maPT}`)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('chiTietPhieuTraContent').innerHTML = data;
+                    const modal = new bootstrap.Modal(document.getElementById('chiTietPhieuTraModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error loading chi tiet phieu tra:', error);
+                });
+        });
+    });
+</script>

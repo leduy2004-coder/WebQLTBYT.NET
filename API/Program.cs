@@ -24,8 +24,15 @@ builder.Services.AddDbContextPool<AppDbContext>(options =>
 
 builder.Services.AddTransient<INguoiDungRepository, NguoiDungRepository>();
 builder.Services.AddTransient<IThietBiRepository, ThietBiRepository>();
+
 builder.Services.AddTransient<ICTPhieuNhapRepository, CTPhieuNhapRepository>();
+builder.Services.AddTransient<ICTPhieuMuonRepository, CTPhieuMuonRepository>();
+builder.Services.AddTransient<ICTPhieuTraRepository, CTPhieuTraRepository>();
+
 builder.Services.AddTransient<IPhieuNhapRepository, PhieuNhapRepository>();
+builder.Services.AddTransient<IPhieuMuonRepository, PhieuMuonRepository>();
+builder.Services.AddTransient<IPhieuTraRepository, PhieuTraRepository>();
+
 
 //  Thêm Controllers
 builder.Services.AddControllers();

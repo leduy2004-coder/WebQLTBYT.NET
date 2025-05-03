@@ -20,6 +20,10 @@ namespace API.Model
         public DbSet<DanhMucTB> DanhMucTB { get; set; }
         public DbSet<ChiTietPhieuNhap> ChiTietPhieuNhap { get; set; }
         public DbSet<PhieuNhap> PhieuNhap { get; set; }
+        public DbSet<PhieuTra> PhieuTra { get; set; }
+        public DbSet<ChiTietPhieuTra> ChiTietPhieuTra { get; set; }
+        public DbSet<PhieuMuon> PhieuMuon { get; set; }
+        public DbSet<ChiTietPhieuMuon> ChiTietPhieuMuon { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -28,6 +28,8 @@ builder.Services.AddSession(options =>
 builder.Services.AddScoped<DangNhapService>();
 builder.Services.AddScoped<ThietBiService>();
 builder.Services.AddScoped<PhieuNhapService>();
+builder.Services.AddScoped<PhieuTraService>();
+builder.Services.AddScoped<PhieuMuonService>();
 
 
 var app = builder.Build();

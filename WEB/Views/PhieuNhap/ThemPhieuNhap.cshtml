@@ -132,7 +132,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center py-4">
-                <p class="mb-0" style="font-size: 1.1rem; color: #333;">Thiết bị này đã được chọn. Vui lòng chọn thiết bị khác.</p>
+                <p class="mb-0" id="alertMessage" style="font-size: 1.1rem; color: #333;">Thiết bị này đã được chọn. Vui lòng chọn thiết bị khác.</p>
             </div>
             <div class="modal-footer justify-content-center" style="border-top: none;">
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Đóng</button>
@@ -303,6 +303,7 @@
         // Check for duplicate MaThietBi
         if (chiTietList.some(item => item.maThietBi === maThietBi)) {
             const modal = new bootstrap.Modal(document.getElementById('duplicateAlertModal'));
+            document.getElementById('alertMessage').textContent = 'Thiết bị này đã được chọn. Vui lòng chọn thiết bị khác.';
             modal.show();
             return;
         }
@@ -345,6 +346,16 @@
                 updateHiddenInputs();
             }
         });
+    });
+
+    // Submit Form Button
+    document.getElementById('submitForm').addEventListener('click', function (e) {
+        if (chiTietList.length === 0) {
+            e.preventDefault(); // Prevent form submission
+            const modal = new bootstrap.Modal(document.getElementById('duplicateAlertModal'));
+            document.getElementById('alertMessage').textContent = 'Vui lòng thêm ít nhất một thiết bị.';
+            modal.show();
+        }
     });
 
     function updateHiddenInputs() {

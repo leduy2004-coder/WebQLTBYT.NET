@@ -74,13 +74,10 @@
                             <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Thiết bị</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Đơn mượn</a>
+                            <a class="nav-link" href="#">Tài khoản</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Đơn sách thiết bị</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Đơn sửa chữa thiết bị</a>
+                            <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Thống kê</a>
                         </li>
                     }
                     else if (userRole == 2) // Manage
@@ -89,8 +86,14 @@
                             <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Thiết bị</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Đơn mượn</a>
+                            <a class="nav-link" href="#">Phiếu mượn</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Phiếu trả</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Thống kê</a>
+						</li>
                     }
                     else if (userRole == 3) // Outbound
                     {
@@ -98,7 +101,10 @@
                             <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Thiết bị</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Đơn mượn</a>
+                            <a class="nav-link" href="#">Phiếu mượn</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Thống kê</a>
                         </li>
                     }
                     else if (userRole == 4) // Inbound
@@ -113,7 +119,7 @@
                             <a class="nav-link" href="@Url.Action("Index", "PhieuNhap")">Phiếu nhập</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Phiếu trả</a>
+                            <a class="nav-link" href="@Url.Action("Index", "DuyetPhieuTra")">Phiếu trả</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Thống kê</a>
@@ -125,7 +131,10 @@
                             <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Thiết bị</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Đơn mượn</a>
+                            <a class="nav-link" href="#">Phiếu mượn</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "TrangChu")">Phiếu trả</a>
                         </li>
                     }
 
