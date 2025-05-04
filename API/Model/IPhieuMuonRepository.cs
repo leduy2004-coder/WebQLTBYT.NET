@@ -9,5 +9,7 @@ namespace API.Model
 {
     public interface IPhieuMuonRepository
     {
+        Task<IEnumerable<PhieuMuon>> LayTatCa();
+        Task<PhieuMuon?> LayPMTheoMa(int maPM);
     }
 }
