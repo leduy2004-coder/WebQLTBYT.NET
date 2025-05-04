@@ -1,0 +1,89 @@
+﻿@model WEB.Models.Response.ChiTietPhieuMuonResponse
+<div class="container">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <strong>Mã Phiếu Mượn:</strong> @Model.PhieuMuon.MaPhieuMuon
+        </div>
+        <div class="col-md-6">
+            <strong>Người Gửi:</strong> @(Model.PhieuMuon.NguoiGui?.HoTen ?? Model.PhieuMuon.MaNguoiGui)
+            @if (!string.IsNullOrEmpty(Model.PhieuMuon.NguoiGui?.Khoa))
+            {
+                <span class="text-muted">(@Model.PhieuMuon.NguoiGui.Khoa)</span>
+            }
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <strong>Người Duyệt:</strong> @(Model.PhieuMuon.NguoiDuyet?.HoTen ?? Model.PhieuMuon.MaNguoiDuyet ?? "Chưa duyệt")
+        </div>
+        <div class="col-md-6">
+            <strong>Tình Trạng:</strong> @(Model.PhieuMuon.TinhTrang ? "Đã duyệt" : "Chưa duyệt")
+        </div>
+    </div>
+    <h6 class="mt-4">Chi Tiết Phiếu Mượn</h6>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Mã Chi Tiết</th>
+                <th>Mã Thiết Bị</th>
+                <th>Tên Thiết Bị</th>
+                <th>Số Lượng Mượn</th>
+                <th>Mục Đích</th>
+                <th>Ngày Mượn</th>
+                <th>Ngày Dự Kiến Trả</th>
+                <th>Tình Cần Thiết</th>
+                <th>Tình Trạng</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.ChiTietPhieuMuonList == null || !Model.ChiTietPhieuMuonList.Any())
+            {
+                <tr>
+                    <td colspan="9" class="text-center">Không có chi tiết phiếu mượn.</td>
+                </tr>
+            }
+            else
+            {
+                foreach (var chiTiet in Model.ChiTietPhieuMuonList)
+                {
+                    <tr>
+                        <td>@chiTiet.MaCT</td>
+                        <td>@chiTiet.MaTB</td>
+                        <td>@(chiTiet.ThietBi?.TenThietBi ?? "N/A")</td>
+                        <td>@chiTiet.SoLuongTBMuon</td>
+                        <td>@chiTiet.MucDich</td>
+                        <td>@chiTiet.NgayMuon.ToString("dd/MM/yyyy")</td>
+                        <td>@chiTiet.NgayDuKienTra.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            @if (chiTiet.TinhCanThiet)
+                            {
+                                <span class="badge bg-danger">Khẩn cấp</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Bình thường</span>
+                            }
+                        </td>
+                        <td>
+                            @switch (chiTiet.TinhTrang)
+                            {
+                                case 1:
+                                    <span class="badge bg-warning text-dark">Chưa duyệt</span>
+                                    break;
+                                case 2:
+                                    <span class="badge bg-success">Đã chấp nhận</span>
+                                    break;
+                                case 3:
+                                    <span class="badge bg-danger">Từ chối</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-secondary">Không xác định</span>
+                                    break;
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

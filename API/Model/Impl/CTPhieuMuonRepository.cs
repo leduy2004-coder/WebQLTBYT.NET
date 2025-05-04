@@ -30,27 +30,32 @@ namespace API.Model.Impl
 
             try
             {
-                var chiTietList = await _context.Set<ChiTietPhieuMuon>()
-                    .Where(ct => dto.DanhSachMaCT.Contains(ct.MaCT) && ct.TinhTrang != 2)
+                // 1. Lấy tất cả chi tiết của phiếu mượn
+                var allCTs = await _context.Set<ChiTietPhieuMuon>()
+                    .Where(ct => ct.MaPhieuMuon == dto.MaPhieuMuon)
                     .ToListAsync();
 
-                if (!chiTietList.Any())
-                {
+                if (!allCTs.Any())
                     return false;
-                }
 
-                // Duyệt từng thiết bị
-                foreach (var ct in chiTietList)
+                // 2. Duyệt (TinhTrang = 2) cho những mã được chọn
+                var danhSachDuyet = allCTs.Where(ct => dto.DanhSachMaCT.Contains(ct.MaCT)).ToList();
+                foreach (var ct in danhSachDuyet)
                 {
-                    ct.TinhTrang = 2; // Chấp nhận
+                    ct.TinhTrang = 2;
                 }
 
-                // Cập nhật phiếu mượn
+                // 3. Từ chối (TinhTrang = 3) cho những mã không được chọn
+                var danhSachTuChoi = allCTs.Where(ct => !dto.DanhSachMaCT.Contains(ct.MaCT)).ToList();
+                foreach (var ct in danhSachTuChoi)
+                {
+                    ct.TinhTrang = 3;
+                }
+
+                // 4. Cập nhật phiếu mượn thành đã duyệt
                 var phieu = await _context.Set<PhieuMuon>().FirstOrDefaultAsync(p => p.MaPhieuMuon == dto.MaPhieuMuon);
                 if (phieu == null)
-                {
                     throw new Exception("Không tìm thấy phiếu mượn.");
-                }
 
                 phieu.TinhTrang = true;
 

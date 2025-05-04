@@ -1,0 +1,358 @@
+﻿@model WEB.Models.Response.DuyetPhieuMuonResponse
+
+@{
+    ViewData["Title"] = "Quản Lý Phiếu Mượn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid my-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 sidebar">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Menu</h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active nav-link-style" href="#danhSachPhieuMuon" data-bs-toggle="tab"><i class="fas fa-list me-2"></i> Danh Sách Phiếu Mượn</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-style" href="#duyetPhieuMuon" data-bs-toggle="tab"><i class="fas fa-check-circle me-2"></i> Duyệt Phiếu Mượn</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="tab-content">
+                <!-- Danh Sách Phiếu Mượn -->
+                <div class="tab-pane fade show active" id="danhSachPhieuMuon">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Danh Sách Phiếu Mượn</h5>
+                            <!-- Search Form -->
+                            <div class="mb-4">
+                                <form method="get" asp-action="Index" asp-controller="PhieuMuon" class="d-flex align-items-center">
+                                    <div class="input-group w-50">
+                                        <input type="number" class="form-control me-2" name="maPM" placeholder="Tìm theo Mã Phiếu Mượn" value="@(ViewBag.MaPMFilter ?? "")">
+                                        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Tìm kiếm</button>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(ViewBag.MaPMFilter))
+                                    {
+                                        <a href="@Url.Action("Index", "PhieuMuon")" class="btn btn-secondary ms-2">Xóa bộ lọc</a>
+                                    }
+                                </form>
+                            </div>
+
+                            <!-- Approved PhieuMuon Table -->
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Mã Phiếu Mượn</th>
+                                        <th>Người Gửi</th>
+                                        <th>Người Duyệt</th>
+                                        <th>Tình Trạng</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.PhieuMuonDaDuyetList == null || !Model.PhieuMuonDaDuyetList.Any())
+                                    {
+                                        <tr>
+                                            <td colspan="5" class="text-center">Không có phiếu mượn nào đã duyệt.</td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        foreach (var phieuMuon in Model.PhieuMuonDaDuyetList)
+                                        {
+                                            <tr class="phieu-muon-row" data-ma="@phieuMuon.MaPhieuMuon" style="cursor: pointer;">
+                                                <td>@phieuMuon.MaPhieuMuon</td>
+                                                <td>@(phieuMuon.NguoiGui?.HoTen ?? phieuMuon.MaNguoiGui)</td>
+                                                <td>@(phieuMuon.NguoiDuyet?.HoTen ?? phieuMuon.MaNguoiDuyet ?? "N/A")</td>
+                                                <td><span class="badge bg-success">Đã duyệt</span></td>
+                                                <td>
+                                                    <button type="button" class="btn btn-info btn-sm view-chi-tiet" data-ma="@phieuMuon.MaPhieuMuon">
+                                                        <i class="fas fa-eye"></i> Chi tiết
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Duyệt Phiếu Mượn -->
+                <div class="tab-pane fade" id="duyetPhieuMuon">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Duyệt Phiếu Mượn</h5>
+                            <form id="approveForm" method="post" asp-action="Approve" asp-controller="PhieuMuon">
+                                <!-- Unapproved PhieuMuon Table -->
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            @* <th><input type="checkbox" id="selectAll"></th> *@
+                                            <th>Mã Phiếu Mượn</th>
+                                            <th>Người Gửi</th>
+                                            <th>Tình Trạng</th>
+                                            <th>Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.PhieuMuonChuaDuyetList == null || !Model.PhieuMuonChuaDuyetList.Any())
+                                        {
+                                            <tr>
+                                                <td colspan="5" class="text-center">Không có phiếu mượn nào cần duyệt.</td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            foreach (var phieuMuon in Model.PhieuMuonChuaDuyetList)
+                                            {
+                                                <tr>
+                                                    @* <td> *@
+                                                    @*     <input type="checkbox" name="selectedPhieuMuonIds" value="@phieuMuon.MaPhieuMuon" class="select-item"> *@
+                                                    @* </td> *@
+                                                    <td>@phieuMuon.MaPhieuMuon</td>
+                                                    <td>@(phieuMuon.NguoiGui?.HoTen ?? phieuMuon.NguoiGui.Khoa)</td>
+                                                    <td><span class="badge bg-warning text-dark">Chưa duyệt</span></td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-info btn-sm view-chi-tiet-2" data-ma="@phieuMuon.MaPhieuMuon">
+                                                            <i class="fas fa-eye"></i> Chi tiết
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+
+                                <!-- Approve Button -->
+                                @* @if (Model.PhieuMuonChuaDuyetList != null && Model.PhieuMuonChuaDuyetList.Any()) *@
+                                @* { *@
+                                @*     <button type="submit" class="btn btn-primary mt-3">Duyệt Phiếu Mượn</button> *@
+                                @* } *@
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 1: Chi tiết phiếu mượn đã duyệt -->
+<div class="modal fade" id="chiTietPhieuMuonModal" tabindex="-1" aria-labelledby="chiTietPhieuMuonModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #2A5C8E; color: white; border-bottom: none;">
+                <h5 class="modal-title" id="chiTietPhieuMuonModalLabel">Chi Tiết Phiếu Mượn</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="chiTietPhieuMuonContent">
+                <!-- Nội dung sẽ được load động -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 2: Duyệt chi tiết phiếu mượn chưa duyệt -->
+<div class="modal fade" id="chiTietDuyetTraModal" tabindex="-1" aria-labelledby="chiTietDuyetTraModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #2A5C8E; color: white; border-bottom: none;">
+                <h5 class="modal-title" id="chiTietDuyetTraModalLabel">Chi Tiết Duyệt Trả Phiếu Mượn</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="chiTietDuyetTraContent">
+                <!-- Nội dung sẽ được load động -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .nav-link-style {
+        color: #2A5C8E;
+        font-weight: 500;
+    }
+
+        .nav-link-style:hover,
+        .nav-link-style.active {
+            color: #1A3C5E;
+            background-color: #f0f0f0;
+        }
+
+    .card {
+        border-radius: 10px;
+        border: none;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .card-title {
+        font-weight: bold;
+        color: #2A5C8E;
+        margin-bottom: 20px;
+    }
+
+    .table th {
+        background-color: #2A5C8E;
+        color: white;
+        text-transform: uppercase;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .btn-primary {
+        background-color: #2A5C8E;
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #1A3C5E;
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+    .btn-info {
+        background-color: #17a2b8;
+        border: none;
+    }
+
+        .btn-info:hover {
+            background-color: #138496;
+        }
+
+    /* Sidebar Styling to Prevent Overlap with Header */
+    .sidebar {
+        margin-top: 20px; /* Add space below the header */
+        position: sticky;
+        top: 80px; /* Adjust based on header height */
+        z-index: 1; /* Ensure it doesn't overlap with other elements */
+    }
+</style>
+
+<script>
+    // Initialize Bootstrap Tabs
+    document.addEventListener('DOMContentLoaded', function () {
+        var triggerTabList = [].slice.call(document.querySelectorAll('a[data-bs-toggle="tab"]'));
+        triggerTabList.forEach(function (triggerEl) {
+            var tabTrigger = new bootstrap.Tab(triggerEl);
+            triggerEl.addEventListener('click', function (event) {
+                event.preventDefault();
+                tabTrigger.show();
+            });
+        });
+
+        // Ensure the active tab is shown on load
+        var activeTab = document.querySelector('a.nav-link-style.active');
+        if (activeTab) {
+            new bootstrap.Tab(activeTab).show();
+        }
+    });
+
+    // Select All Checkboxes
+    // document.getElementById('selectAll').addEventListener('change', function () {
+    //     const checkboxes = document.querySelectorAll('.select-item');
+    //     checkboxes.forEach(checkbox => {
+    //         checkbox.checked = this.checked;
+    //     });
+    // });
+
+    // Modal 1: Xem chi tiết phiếu mượn đã duyệt
+    document.querySelectorAll('.view-chi-tiet').forEach(button => {
+        button.addEventListener('click', function () {
+            const maPM = this.getAttribute('data-ma');
+            fetch(`/PhieuMuon/ChiTietPhieuMuon?maPM=${maPM}`)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('chiTietPhieuMuonContent').innerHTML = data;
+                    const modal = new bootstrap.Modal(document.getElementById('chiTietPhieuMuonModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error loading chi tiet phieu muon:', error);
+                });
+        });
+    });
+
+    // Modal 2: Duyệt chi tiết phiếu mượn chưa duyệt
+    document.querySelectorAll('.view-chi-tiet-2').forEach(button => {
+        button.addEventListener('click', function () {
+            const maPM = this.getAttribute('data-ma');
+            fetch(`/PhieuMuon/ChiTietDuyetTra?maPM=${maPM}`)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('chiTietDuyetTraContent').innerHTML = data;
+                    bindDuyetChiTietForm(); // Gắn lại sự kiện submit cho form duyệt
+                    const modal = new bootstrap.Modal(document.getElementById('chiTietDuyetTraModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error loading chi tiet duyet tra:', error);
+                });
+        });
+    });
+
+    // Hàm bind cho form duyệt chi tiết phiếu mượn (chỉ dùng cho modal 2)
+    function bindDuyetChiTietForm() {
+        const form = document.getElementById('duyetChiTietForm');
+        if (form) {
+            form.onsubmit = function (e) {
+                e.preventDefault();
+                const maPhieuMuon = form.MaPhieuMuon.value;
+                const danhSachMaCT = Array.from(form.querySelectorAll('input[name="DanhSachMaCT"]:checked')).map(cb => cb.value);
+
+                if (danhSachMaCT.length === 0) {
+                    alert('Vui lòng chọn ít nhất một thiết bị để duyệt!');
+                    return;
+                }
+
+                fetch('/PhieuMuon/DuyetChiTietPhieuMuon', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ MaPhieuMuon: maPhieuMuon, DanhSachMaCT: danhSachMaCT })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Duyệt thành công!');
+                        location.reload();
+                    } else {
+                        alert('Duyệt thất bại: ' + (data.message || 'Lỗi không xác định'));
+                    }
+                })
+                .catch(err => alert('Lỗi khi duyệt: ' + err));
+            };
+        }
+        bindSelectAllCTPM();
+    }
+
+    function bindSelectAllCTPM() {
+        const selectAll = document.getElementById('selectAllCTPM');
+        if (selectAll) {
+            selectAll.addEventListener('change', function () {
+                const checkboxes = document.querySelectorAll('#duyetChiTietForm .select-item-ctpm');
+                checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            });
+        }
+    }
+</script>

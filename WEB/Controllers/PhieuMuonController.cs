@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using WEB.Api;
 using WEB.Models;
+using WEB.Models.Request;
 using WEB.Models.Response;
 
 
@@ -111,5 +112,37 @@ public class PhieuMuonController : Controller
         };
 
         return PartialView("ChiTietPhieuMuon", model);
+    }
+
+    // GET: PhieuMuon/ChiTietDuyetTra
+    public async Task<IActionResult> ChiTietDuyetTra(int maPM)
+    {
+        var phieuMuon = await phieuMuonService.LayPMTheoMa(maPM);
+        if (phieuMuon == null)
+            return NotFound();
+
+        var chiTietPhieuMuonList = await phieuMuonService.LayCTPhieuMuonTheoPM(maPM);
+
+        var model = new ChiTietPhieuMuonResponse
+        {
+            PhieuMuon = phieuMuon,
+            ChiTietPhieuMuonList = chiTietPhieuMuonList
+        };
+
+        return PartialView("ChiTietDuyetTra", model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DuyetChiTietPhieuMuon([FromBody] DuyetChiTietPhieuMuon dto)
+    {
+        if (dto == null || dto.DanhSachMaCT == null || !dto.DanhSachMaCT.Any())
+            return Json(new { success = false, message = "Không có thiết bị nào được chọn để duyệt." });
+
+        var result = await phieuMuonService.DuyetChiTietPhieuMuon(dto);
+
+        if (result)
+            return Json(new { success = true });
+        else
+            return Json(new { success = false, message = "Duyệt thất bại." });
     }
 }
