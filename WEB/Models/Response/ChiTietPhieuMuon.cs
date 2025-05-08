@@ -1,16 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
-namespace API.Data
+namespace WEB.Models.Response
 {
     public class ChiTietPhieuMuon
     {
-        [Key]
         public int MaCT { get; set; }
 
-        [StringLength(20)]
         public string MaTB { get; set; }
 
         public bool TinhCanThiet { get; set; } // 1: Khẩn cấp, 0: Bình thường
@@ -27,11 +24,26 @@ namespace API.Data
 
         public int TinhTrang { get; set; } // 1: Chưa duyệt, 2: Chấp nhận, 3: Từ chối
 
-        [ForeignKey("MaTB")]
-        public virtual ThietBi ThietBi { get; set; }
+        public ThietBiDTO ThietBi { get; set; }
+    }
 
-        //[JsonIgnore]
-        [ForeignKey("MaPhieuMuon")]
-        public virtual PhieuMuon PhieuMuon { get; set; }
+    public class ThietBiDTO
+    {
+        public string MaThietBi { get; set; }
+
+        public string TenThietBi { get; set; }
+
+        public int? SoLuongTong { get; set; }
+
+        public int? SoLuongCon { get; set; }
+
+
+        public string MaDanhMuc { get; set; }
+
+        public string MaLoai { get; set; }
+
+        public byte[]? HinhAnh { get; set; }
+
+        public string MoTa { get; set; }
     }
 }

@@ -1,0 +1,77 @@
+﻿@model WEB.Models.Response.ChiTietPhieuMuonResponse
+
+<div class="mb-3">
+    <strong>Người gửi:</strong> @Model.PhieuMuon.NguoiGui?.HoTen<br />
+    <strong>Khoa:</strong> @Model.PhieuMuon.NguoiGui?.Khoa <br />
+    <strong>Người duyệt:</strong> @(Model.PhieuMuon.NguoiDuyet?.HoTen ?? "Chưa duyệt") <br />
+    <strong>Tình trạng:</strong>
+    @if (Model.PhieuMuon.TinhTrang)
+    {
+        <span class="badge bg-success">Đã duyệt</span>
+    }
+    else
+    {
+        <span class="badge bg-warning text-dark">Chưa duyệt</span>
+    }
+</div>
+<form id="duyetChiTietForm">
+    <input type="hidden" name="MaPhieuMuon" value="@Model.PhieuMuon.MaPhieuMuon" />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>
+                    <input type="checkbox" id="selectAllCTPM" />
+                </th>
+                <th>Tên Thiết Bị</th>
+                <th>Mục Đích</th>
+                <th>Ngày Mượn</th>
+                <th>Ngày Dự Kiến Trả</th>
+                <th>Số Lượng Mượn</th>
+                <th>Số Lượng Còn</th>
+                <th>Tình Cần Thiết</th>
+                <th>Tình Trạng</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ct in Model.ChiTietPhieuMuonList)
+            {
+                <tr>
+                    <td>
+                        @if (ct.TinhTrang == 1)
+                        {
+                            <input type="checkbox" name="DanhSachMaCT" value="@ct.MaCT" class="select-item-ctpm" />
+                        }
+                    </td>
+                    <td>@ct.ThietBi?.TenThietBi</td>
+                    <td>@ct.MucDich</td>
+                    <td>@ct.NgayMuon.ToString("dd-MM-yyyy")</td>
+                    <td>@ct.NgayDuKienTra.ToString("dd-MM-yyyy")</td>
+                    <td>@ct.SoLuongTBMuon</td>
+                    <td>@(ct.ThietBi?.SoLuongCon ?? 0)</td>
+                    <td>
+                        @if (ct.TinhCanThiet)
+                        {
+                            <span class="badge bg-danger">Khẩn cấp</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Bình thường</span>
+                        }
+                    </td>
+                    <td>
+                        @switch (ct.TinhTrang)
+                        {
+                            case 1: <span class="badge bg-warning text-dark">Chưa duyệt</span>; break;
+                            case 2: <span class="badge bg-success">Chấp nhận</span>; break;
+                            case 3: <span class="badge bg-danger">Từ chối</span>; break;
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        <button type="submit" class="btn btn-primary">Duyệt Thiết Bị Đã Chọn</button>
+    </div>
+</form>
