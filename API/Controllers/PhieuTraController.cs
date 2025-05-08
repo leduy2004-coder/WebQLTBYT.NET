@@ -70,11 +70,11 @@ namespace API.Controllers
         }
 
         [HttpPost("DuyetPhieuTra")]
-        public async Task<IActionResult> DuyetPhieuTra([FromBody] int maPT)
+        public async Task<IActionResult> DuyetPhieuTra([FromBody] DuyetPhieuTraRequest request)
         {
             try
             {
-                var result = await phieuTraRepository.DuyetPhieuTra(maPT);
+                var result = await phieuTraRepository.DuyetPhieuTra(request);
                 if (result)
                 {
                     return Ok(result);

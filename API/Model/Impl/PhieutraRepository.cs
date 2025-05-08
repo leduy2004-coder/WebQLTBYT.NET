@@ -15,14 +15,14 @@ namespace API.Model.Impl
             _context = context;
         }
 
-        public async Task<bool> DuyetPhieuTra(int maPT)
+        public async Task<bool> DuyetPhieuTra(DuyetPhieuTraRequest request)
         {
-            var phieuTra = await _context.PhieuTra.FindAsync(maPT);
+            var phieuTra = await _context.PhieuTra.FindAsync(request.MaPT);
             if (phieuTra == null)
             {
                 return false; // Không tìm thấy phiếu trả
             }
-
+            phieuTra.MaNguoiDuyet = request.UserId;
             phieuTra.TinhTrang = true; // Đã duyệt
 
             _context.PhieuTra.Update(phieuTra);

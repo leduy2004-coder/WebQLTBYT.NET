@@ -55,10 +55,12 @@ namespace WEB.Api
 
             return null;
         }
-        public async Task<bool> DuyetPhieuTra(int maPT)
+        public async Task<bool> DuyetPhieuTra(int maPT, string userId)
         {
-            var response = await _apiService.PostDataAsync<bool>("/api/PhieuTra/DuyetPhieuTra", maPT);
+            var data = new { maPT = maPT, userId = userId };
+            var response = await _apiService.PostDataAsync<bool>("/api/PhieuTra/DuyetPhieuTra", data);
             return response;
         }
+
     }
 }

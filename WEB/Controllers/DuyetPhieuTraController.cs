@@ -60,12 +60,12 @@ public class DuyetPhieuTraController : Controller
             TempData["MessageType"] = "danger";
             return RedirectToAction("Index");
         }
-
+        var userId = HttpContext.Session.GetString("UserId");
         try
         {
             foreach (var maPhieuTra in selectedPhieuTraIds)
             {
-                var phieuTra = await phieuTraService.DuyetPhieuTra(maPhieuTra);               
+                var phieuTra = await phieuTraService.DuyetPhieuTra(maPhieuTra, userId);               
             }
 
             TempData["Message"] = "Duyệt phiếu trả thành công!";

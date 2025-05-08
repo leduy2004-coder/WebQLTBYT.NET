@@ -58,6 +58,7 @@ namespace API.Model.Impl
                     throw new Exception("Không tìm thấy phiếu mượn.");
 
                 phieu.TinhTrang = true;
+                phieu.MaNguoiDuyet = dto.userId; 
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();

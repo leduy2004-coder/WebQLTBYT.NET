@@ -12,6 +12,6 @@ namespace API.Model
         Task<IEnumerable<PhieuTra>> LayTatCa();
         Task<PhieuTra> LayPTTheoMa(int maPT);
 
-        Task<bool> DuyetPhieuTra(int maPT);
+        Task<bool> DuyetPhieuTra(DuyetPhieuTraRequest request);
     }
 }

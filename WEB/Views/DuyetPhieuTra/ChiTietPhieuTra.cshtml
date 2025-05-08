@@ -1,17 +1,17 @@
 ﻿@model WEB.Models.Response.ChiTietPhieuTraResponse
 
 <div class="container">
-    <div class="row mb-3">3
+    <div class="row mb-3">
         <div class="col-md-6">
             <strong>Mã Phiếu Trả:</strong> @Model.PhieuTra.MaPhieuTra
         </div>
         <div class="col-md-6">
-            <strong>Người Gửi:</strong> @Model.PhieuTra.MaNguoiGui
+            <strong>Mã Người Gửi:</strong> @Model.PhieuTra.MaNguoiGui
         </div>
     </div>
     <div class="row mb-3">
         <div class="col-md-6">
-            <strong>Người Duyệt:</strong> @(Model.PhieuTra.MaNguoiDuyet ?? "Chưa duyệt")
+            <strong>Mã Người Duyệt:</strong> @(Model.PhieuTra.MaNguoiDuyet ?? "Chưa duyệt")
         </div>
         <div class="col-md-6">
             <strong>Ngày Trả:</strong> @Model.PhieuTra.NgayTra.ToString("dd/MM/yyyy")

@@ -1,4 +1,5 @@
-﻿@model WEB.Models.Response.DuyetPhieuMuonResponse
+﻿
+@model WEB.Models.Response.DuyetPhieuMuonResponse
 
 @{
     ViewData["Title"] = "Quản Lý Phiếu Mượn";
@@ -34,14 +35,14 @@
                             <h5 class="card-title mb-4">Danh Sách Phiếu Mượn</h5>
                             <!-- Search Form -->
                             <div class="mb-4">
-                                <form method="get" asp-action="Index" asp-controller="PhieuMuon" class="d-flex align-items-center">
+                                <form method="get" asp-action="Index" asp-controller="DuyetPhieuMuon" class="d-flex align-items-center">
                                     <div class="input-group w-50">
                                         <input type="number" class="form-control me-2" name="maPM" placeholder="Tìm theo Mã Phiếu Mượn" value="@(ViewBag.MaPMFilter ?? "")">
                                         <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Tìm kiếm</button>
                                     </div>
                                     @if (!string.IsNullOrEmpty(ViewBag.MaPMFilter))
                                     {
-                                        <a href="@Url.Action("Index", "PhieuMuon")" class="btn btn-secondary ms-2">Xóa bộ lọc</a>
+                                        <a href="@Url.Action("Index", "DuyetPhieuMuon")" class="btn btn-secondary ms-2">Xóa bộ lọc</a>
                                     }
                                 </form>
                             </div>
@@ -92,7 +93,7 @@
                     <div class="card shadow-sm">
                         <div class="card-body">
                             <h5 class="card-title mb-4">Duyệt Phiếu Mượn</h5>
-                            <form id="approveForm" method="post" asp-action="Approve" asp-controller="PhieuMuon">
+                            <form id="approveForm" method="post" asp-action="Approve" asp-controller="DuyetPhieuMuon">
                                 <!-- Unapproved PhieuMuon Table -->
                                 <table class="table table-hover">
                                     <thead>
@@ -149,14 +150,16 @@
 
 <!-- Modal 1: Chi tiết phiếu mượn đã duyệt -->
 <div class="modal fade" id="chiTietPhieuMuonModal" tabindex="-1" aria-labelledby="chiTietPhieuMuonModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header" style="background-color: #2A5C8E; color: white; border-bottom: none;">
                 <h5 class="modal-title" id="chiTietPhieuMuonModalLabel">Chi Tiết Phiếu Mượn</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="chiTietPhieuMuonContent">
-                <!-- Nội dung sẽ được load động -->
+            <div class="modal-body modal-body-scrollable">
+                <div id="chiTietPhieuMuonContent" class="table-responsive">
+                    <!-- Nội dung sẽ được load động -->
+                </div>
             </div>
         </div>
     </div>
@@ -164,18 +167,23 @@
 
 <!-- Modal 2: Duyệt chi tiết phiếu mượn chưa duyệt -->
 <div class="modal fade" id="chiTietDuyetTraModal" tabindex="-1" aria-labelledby="chiTietDuyetTraModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header" style="background-color: #2A5C8E; color: white; border-bottom: none;">
                 <h5 class="modal-title" id="chiTietDuyetTraModalLabel">Chi Tiết Duyệt Trả Phiếu Mượn</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="chiTietDuyetTraContent">
-                <!-- Nội dung sẽ được load động -->
+            <div class="modal-body modal-body-scrollable">
+                <div id="chiTietDuyetTraContent" class="table-responsive">
+                    <!-- Nội dung sẽ được load động -->
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
     .nav-link-style {
@@ -208,10 +216,12 @@
         background-color: #2A5C8E;
         color: white;
         text-transform: uppercase;
+        padding: 12px;
     }
 
     .table td {
         vertical-align: middle;
+        padding: 10px;
     }
 
     .btn-primary {
@@ -241,13 +251,73 @@
             background-color: #138496;
         }
 
-    /* Sidebar Styling to Prevent Overlap with Header */
+    /* Sidebar Styling */
     .sidebar {
-        margin-top: 20px; /* Add space below the header */
+        margin-top: 20px;
         position: sticky;
-        top: 80px; /* Adjust based on header height */
-        z-index: 1; /* Ensure it doesn't overlap with other elements */
+        top: 80px;
+        z-index: 1;
     }
+
+    /* Modal Styling */
+    .modal-xl {
+        max-width: 90%;
+    }
+
+    .modal-body-scrollable {
+        max-height: 80vh;
+        overflow-y: auto;
+        padding: 20px;
+    }
+
+    .modal-content {
+        border-radius: 10px;
+    }
+
+    .table-responsive {
+        margin-bottom: 20px;
+    }
+
+        .table-responsive table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-responsive th, .table-responsive td {
+            padding: 12px;
+            border: 1px solid #dee2e6;
+        }
+
+        .table-responsive th {
+            background-color: #2A5C8E;
+            color: white;
+            min-width: 100px;
+        }
+
+        .table-responsive td {
+            min-width: 100px;
+        }
+
+            /* Ensure table columns have balanced widths */
+            .table-responsive th:nth-child(1), .table-responsive td:nth-child(1) { /* Mã Thiết Bị */
+                width: 15%;
+            }
+
+            .table-responsive th:nth-child(2), .table-responsive td:nth-child(2) { /* Tên Thiết Bị */
+                width: 25%;
+            }
+
+            .table-responsive th:nth-child(3), .table-responsive td:nth-child(3) { /* Danh Mục */
+                width: 20%;
+            }
+
+            .table-responsive th:nth-child(4), .table-responsive td:nth-child(4) { /* Số Lượng */
+                width: 15%;
+            }
+
+            .table-responsive th:nth-child(5), .table-responsive td:nth-child(5) { /* Checkbox or other */
+                width: 25%;
+            }
 </style>
 
 <script>
@@ -269,27 +339,31 @@
         }
     });
 
-    // Select All Checkboxes
-    // document.getElementById('selectAll').addEventListener('change', function () {
-    //     const checkboxes = document.querySelectorAll('.select-item');
-    //     checkboxes.forEach(checkbox => {
-    //         checkbox.checked = this.checked;
-    //     });
-    // });
-
     // Modal 1: Xem chi tiết phiếu mượn đã duyệt
     document.querySelectorAll('.view-chi-tiet').forEach(button => {
         button.addEventListener('click', function () {
             const maPM = this.getAttribute('data-ma');
-            fetch(`/PhieuMuon/ChiTietPhieuMuon?maPM=${maPM}`)
-                .then(response => response.text())
+            fetch(`/DuyetPhieuMuon/ChiTietPhieuMuon?maPM=${maPM}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load chi tiết phiếu mượn');
+                    }
+                    return response.text();
+                })
                 .then(data => {
                     document.getElementById('chiTietPhieuMuonContent').innerHTML = data;
+                    applyModalStyles();
                     const modal = new bootstrap.Modal(document.getElementById('chiTietPhieuMuonModal'));
                     modal.show();
                 })
                 .catch(error => {
-                    console.error('Error loading chi tiet phieu muon:', error);
+                    console.error('Error loading chi tiết phiếu mượn:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Không thể tải chi tiết phiếu mượn. Vui lòng thử lại.',
+                        confirmButtonColor: '#2A5C8E'
+                    });
                 });
         });
     });
@@ -298,21 +372,35 @@
     document.querySelectorAll('.view-chi-tiet-2').forEach(button => {
         button.addEventListener('click', function () {
             const maPM = this.getAttribute('data-ma');
-            fetch(`/PhieuMuon/ChiTietDuyetTra?maPM=${maPM}`)
-                .then(response => response.text())
+            fetch(`/DuyetPhieuMuon/ChiTietDuyetTra?maPM=${maPM}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load chi tiết duyệt trả');
+                    }
+                    return response.text();
+                })
                 .then(data => {
                     document.getElementById('chiTietDuyetTraContent').innerHTML = data;
-                    bindDuyetChiTietForm(); // Gắn lại sự kiện submit cho form duyệt
+                    applyModalStyles();
+                    bindDuyetChiTietForm();
                     const modal = new bootstrap.Modal(document.getElementById('chiTietDuyetTraModal'));
                     modal.show();
                 })
                 .catch(error => {
-                    console.error('Error loading chi tiet duyet tra:', error);
+                    console.error('Error loading chi tiết duyệt trả:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Không thể tải chi tiết duyệt trả. Vui lòng thử lại.',
+                        confirmButtonColor: '#2A5C8E'
+                    });
                 });
         });
     });
+    function applyModalStyles() {
 
-    // Hàm bind cho form duyệt chi tiết phiếu mượn (chỉ dùng cho modal 2)
+    }
+    // Hàm bind cho form duyệt chi tiết phiếu mượn
     function bindDuyetChiTietForm() {
         const form = document.getElementById('duyetChiTietForm');
         if (form) {
@@ -322,11 +410,16 @@
                 const danhSachMaCT = Array.from(form.querySelectorAll('input[name="DanhSachMaCT"]:checked')).map(cb => cb.value);
 
                 if (danhSachMaCT.length === 0) {
-                    alert('Vui lòng chọn ít nhất một thiết bị để duyệt!');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Cảnh báo',
+                        text: 'Vui lòng chọn ít nhất một thiết bị để duyệt!',
+                        confirmButtonColor: '#2A5C8E'
+                    });
                     return;
                 }
 
-                fetch('/PhieuMuon/DuyetChiTietPhieuMuon', {
+                fetch('/DuyetPhieuMuon/DuyetChiTietPhieuMuon', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ MaPhieuMuon: maPhieuMuon, DanhSachMaCT: danhSachMaCT })
@@ -334,13 +427,31 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Duyệt thành công!');
-                        location.reload();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công',
+                            text: 'Duyệt phiếu mượn thành công!',
+                            confirmButtonColor: '#2A5C8E'
+                        }).then(() => {
+                            location.reload();
+                        });
                     } else {
-                        alert('Duyệt thất bại: ' + (data.message || 'Lỗi không xác định'));
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: 'Duyệt thất bại: ' + (data.message || 'Lỗi không xác định'),
+                            confirmButtonColor: '#2A5C8E'
+                        });
                     }
                 })
-                .catch(err => alert('Lỗi khi duyệt: ' + err));
+                .catch(err => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Lỗi khi duyệt: ' + err.message,
+                        confirmButtonColor: '#2A5C8E'
+                    });
+                });
             };
         }
         bindSelectAllCTPM();
