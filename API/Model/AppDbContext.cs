@@ -1,5 +1,6 @@
 ﻿
 using API.Data;
+using API.Data.ThongKe;
 using API.Dto;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,13 +25,25 @@ namespace API.Model
         public DbSet<ChiTietPhieuTra> ChiTietPhieuTra { get; set; }
         public DbSet<PhieuMuon> PhieuMuon { get; set; }
         public DbSet<ChiTietPhieuMuon> ChiTietPhieuMuon { get; set; }
+        public DbSet<PhanBoTheoDanhMuc> PhanBoTheoDanhMuc { get; set; }
+        public DbSet<ThongKeMuonTraTheoThang> ThongKeMuonTraTheoThang { get; set; }
+        public DbSet<ThongKeTongQuan> ThongKeTongQuan { get; set; }
+        public DbSet<XuHuongNhapThietBiTheoThang> XuHuongNhapThietBiTheoThang { get; set; }
+        public DbSet<ThietBiMuonNhieuNhat> ThietBiMuonNhieuNhat { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<ThongKeMuonTraTheoThang>().HasNoKey();
+            modelBuilder.Entity<ThongKeTongQuan>().HasNoKey();
+            modelBuilder.Entity<XuHuongNhapThietBiTheoThang>().HasNoKey();
+            modelBuilder.Entity<PhanBoTheoDanhMuc>().HasNoKey();
+            modelBuilder.Entity<ThietBiMuonNhieuNhat>().HasNoKey();
         }
+
+
 
     }
 }

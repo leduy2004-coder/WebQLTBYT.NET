@@ -32,6 +32,7 @@ builder.Services.AddTransient<ICTPhieuTraRepository, CTPhieuTraRepository>();
 builder.Services.AddTransient<IPhieuNhapRepository, PhieuNhapRepository>();
 builder.Services.AddTransient<IPhieuMuonRepository, PhieuMuonRepository>();
 builder.Services.AddTransient<IPhieuTraRepository, PhieuTraRepository>();
+builder.Services.AddTransient<IThongKeRepository, ThongKeRepository>();
 
 
 //  Thêm Controllers
