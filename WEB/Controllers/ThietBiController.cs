@@ -30,5 +30,13 @@ public class ThietBiController : Controller
         return RedirectToAction("Index", "TrangChu");
     }
 
+    [HttpPost]
+    public async Task<IActionResult> CapNhatThietBi(ThemThietBiRequest request)
+    {
 
+
+        await thietBiService.LuuThietBi(request, "/api/ThietBi", HttpMethod.Put);
+
+        return RedirectToAction("Index", "TrangChu");
+    }
 }

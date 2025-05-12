@@ -1,4 +1,5 @@
-﻿@{
+﻿
+@{
     ViewData["Title"] = "Thống kê hệ thống quản lý thiết bị";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -9,17 +10,10 @@
         <h1>Thống kê hệ thống quản lý thiết bị</h1>
         <p>Cập nhật đến ngày hôm nay</p>
         <p id="current-time"></p>
-        <div class="mt-3 d-flex align-items-center justify-content-center flex-wrap">
-            <div class="me-3 mb-2">
-                <label for="yearInput" class="form-label">Nhập năm:</label>
-                <input type="number" id="yearInput" class="form-control d-inline-block" min="1900" placeholder="Nhập năm">
-                <div id="yearError" class="text-danger mt-1 small" style="display: none;"></div>
-            </div>
-        </div>
     </div>
 
-    <!-- Info Cards -->
-    <div class="cards d-flex flex-wrap justify-content-around mb-5">
+    <!-- Year-Independent Info Cards -->
+    <div class="cards year-independent d-flex flex-wrap justify-content-around mb-5">
         <div class="card stats-card shadow-sm text-center mb-3">
             <h3><i class="fas fa-tools me-2"></i>Tổng thiết bị</h3>
             <p id="totalDevices">0</p>
@@ -28,6 +22,31 @@
             <h3><i class="fas fa-check-circle me-2"></i>Thiết bị còn lại</h3>
             <p id="availableDevices">0</p>
         </div>
+    </div>
+
+    <!-- Pie Chart -->
+    <div class="pie-chart-section mb-5">
+        <div class="card chart-card shadow-sm p-3 mx-auto" style="max-width: 500px;">
+            <h5 class="card-title text-center">Tỷ lệ thiết bị theo danh mục</h5>
+            <div class="chart-container pie-chart-container">
+                <canvas id="deviceCategoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Year Input -->
+    <div class="year-input text-center mb-4">
+        <div class="d-flex align-items-center justify-content-center flex-wrap">
+            <div class="me-3 mb-2">
+                <label for="yearInput" class="form-label">Nhập năm:</label>
+                <input type="number" id="yearInput" class="form-control d-inline-block" min="1900" placeholder="Nhập năm">
+                <div id="yearError" class="text-danger mt-1 small" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Year-Dependent Info Cards -->
+    <div class="cards year-dependent d-flex flex-wrap justify-content-around mb-5">
         <div class="card stats-card shadow-sm text-center mb-3">
             <h3><i class="fas fa-arrow-up me-2"></i>Phiếu mượn</h3>
             <p id="borrowTickets">0</p>
@@ -38,17 +57,9 @@
         </div>
     </div>
 
-    <!-- Charts -->
+    <!-- Other Charts -->
     <div class="charts row g-4 d-flex justify-content-between mb-5">
-        <div class="col-12 col-md-4">
-            <div class="card chart-card shadow-sm p-3">
-                <h5 class="card-title text-center">Tỷ lệ thiết bị theo danh mục</h5>
-                <div class="chart-container pie-chart-container">
-                    <canvas id="deviceCategoryChart"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-6">
             <div class="card chart-card shadow-sm p-3">
                 <h5 class="card-title text-center">Thiết bị mượn, trả theo tháng</h5>
                 <div class="chart-container">
@@ -56,7 +67,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-6">
             <div class="card chart-card shadow-sm p-3">
                 <h5 class="card-title text-center">Biến động thiết bị nhập theo tháng</h5>
                 <div class="chart-container">
@@ -69,7 +80,7 @@
     <!-- Top Borrowed Devices Control -->
     <div class="top-devices-control card shadow-sm p-3 mb-3">
         <div class="d-flex justify-content-between align-items-center">
-            <h2 class="card-title mb-0">Top thiết bị mượn nhiều nhất</h2>
+            <h2 class="card-title mb-0">Top thiết bị mượn nhiều nhất theo năm</h2>
             <div class="mb-0">
                 <label for="topNInput" class="form-label mb-0 me-2">Hiển thị top:</label>
                 <input type="number" id="topNInput" class="form-control d-inline-block" min="1" max="50" value="5" placeholder="Số lượng">
@@ -100,6 +111,9 @@
     </div>
 </div>
 
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <style>
     .header h1 {
         color: #2A5C8E;
@@ -113,8 +127,10 @@
         margin: 5px 0;
     }
 
-    .cards {
+    .cards.year-independent, .cards.year-dependent {
         flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
     }
 
     .stats-card {
@@ -142,6 +158,11 @@
             color: #333;
         }
 
+    .pie-chart-section {
+        display: flex;
+        justify-content: center;
+    }
+
     .charts {
         display: flex;
         justify-content: space-between;
@@ -153,7 +174,6 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        flex: 1 1 calc(33% - 10px);
         border-radius: 10px;
     }
 
@@ -211,6 +231,7 @@
     .table-responsive {
         max-height: 400px;
         overflow-y: auto;
+        font-size: 14px;
     }
 
     .table th, .table td {
@@ -230,12 +251,12 @@
     .progress-container {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 5px;
         padding: 5px;
     }
 
     .progress {
-        height: 20px;
+        height: 16px;
         border-radius: 8px;
         background-color: #e9ecef;
         overflow: hidden;
@@ -255,13 +276,17 @@
         text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
     }
 
+        .progress-bar.animate {
+            width: 0;
+            transition: width 1s ease-in-out;
+        }
+
     .progress-text {
-        font-size: 14px;
+        font-size: 12px;
         color: #333;
-        min-width: 60px;
+        min-width: 50px;
         text-align: left;
     }
-
 
     .sticky-top {
         position: sticky;
@@ -269,13 +294,32 @@
         z-index: 5;
     }
 
+  
     .chart-card {
         flex: 1 1 100%;
     }
 
-    .table-responsive {
-        font-size: 14px;
+    .progress {
+        height: 14px;
     }
+
+    .progress-text {
+        font-size: 11px;
+    }
+
+    
+
+  
+
+    .progress-container {
+        gap: 3px;
+    }
+
+    .progress-text {
+        min-width: 40px;
+    }
+
+    
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -319,6 +363,7 @@
         topNInput.value = 5;
 
         let deviceCategoryChart, borrowReturnChart, importChart;
+        let cachedYearIndependentData = null;
 
         // Hàm hiển thị loading overlay
         function showLoading(container) {
@@ -363,7 +408,7 @@
         }
 
         // Hàm lấy và vẽ dữ liệu
-        async function loadData(year, topN) {
+        async function loadData(year, topN, isInitialLoad = false) {
             if (!validateYear(year) || !validateTopN(topN)) return;
 
             const chartContainers = document.querySelectorAll('.chart-container');
@@ -371,7 +416,6 @@
             const loadingOverlays = Array.from(chartContainers).map(container => showLoading(container));
 
             try {
-                // Cập nhật bảng top thiết bị thành loading
                 topDevicesTableBody.innerHTML = '<tr><td colspan="6" class="text-center">Đang tải dữ liệu...</td></tr>';
 
                 // Lấy dữ liệu từ API
@@ -384,13 +428,15 @@
                         }
                         return res.json();
                     }),
-                    fetch(`${apiBaseUrl}/api/ThongKe/PhanBoTheoDanhMuc/${year}`).then(async res => {
-                        if (!res.ok) {
-                            const errorText = await res.text();
-                            throw new Error(`PhanBoTheoDanhMuc failed: Status ${res.status}, ${errorText}`);
-                        }
-                        return res.json();
-                    }),
+                    isInitialLoad
+                        ? fetch(`${apiBaseUrl}/api/ThongKe/PhanBoTheoDanhMuc`).then(async res => {
+                              if (!res.ok) {
+                                  const errorText = await res.text();
+                                  throw new Error(`PhanBoTheoDanhMuc failed: Status ${res.status}, ${errorText}`);
+                              }
+                              return res.json();
+                          })
+                        : Promise.resolve(cachedYearIndependentData.danhMucData),
                     fetch(`${apiBaseUrl}/api/ThongKe/ThongKeMuonTraTheoThang/${year}`).then(async res => {
                         if (!res.ok) {
                             const errorText = await res.text();
@@ -414,6 +460,15 @@
                     })
                 ]);
 
+                // Cache year-independent data on initial load
+                if (isInitialLoad) {
+                    cachedYearIndependentData = {
+                        tongThietBi: tongQuan.tongThietBi,
+                        thietBiConLai: tongQuan.thietBiConLai,
+                        danhMucData
+                    };
+                }
+
                 // Log dữ liệu API
                 console.log('API Responses:', { tongQuan, danhMucData, muonTraData, nhapData, topDevicesData });
 
@@ -425,19 +480,31 @@
 
                 if (!totalDevices || !availableDevices || !borrowTickets || !returnTickets) {
                     console.error('DOM elements for info cards not found.');
-                    alert('Lỗi giao diện: Không tìm thấy các phần tử hiển thị dữ liệu.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Không tìm thấy các phần tử hiển thị dữ liệu.',
+                        confirmButtonColor: '#2A5C8E'
+                    });
                     return;
                 }
 
-                totalDevices.textContent = tongQuan.tongThietBi ?? 0;
-                availableDevices.textContent = tongQuan.thietBiConLai ?? 0;
+                // Update year-independent data only on initial load
+                if (isInitialLoad) {
+                    totalDevices.textContent = cachedYearIndependentData.tongThietBi ?? 0;
+                    availableDevices.textContent = cachedYearIndependentData.thietBiConLai ?? 0;
+                    console.log('Year-independent info cards updated:', {
+                        tongThietBi: cachedYearIndependentData.tongThietBi,
+                        thietBiConLai: cachedYearIndependentData.thietBiConLai
+                    });
+                }
+
+                // Update year-dependent data
                 borrowTickets.textContent = tongQuan.phieuMuon ?? 0;
                 returnTickets.textContent = tongQuan.phieuTra ?? 0;
-                console.log('Info cards updated:', {
-                    TongThietBi: tongQuan.tongThietBi,
-                    ThietBiConLai: tongQuan.thietBiConLai,
-                    PhieuMuon: tongQuan.phieuMuon,
-                    PhieuTra: tongQuan.phieuTra
+                console.log('Year-dependent info cards updated:', {
+                    phieuMuon: tongQuan.phieuMuon,
+                    phieuTra: tongQuan.phieuTra
                 });
 
                 // Cập nhật bảng top thiết bị
@@ -445,10 +512,8 @@
                     topDevicesTableBody.innerHTML = '<tr><td colspan="6" class="text-center">Không có dữ liệu.</td></tr>';
                 } else {
                     topDevicesTableBody.innerHTML = topDevicesData.map(item => {
-                        // Kiểm tra giá trị TyLeMuon trước khi gọi toFixed()
                         const tyLeMuon = item.tyLeMuon != null ? item.tyLeMuon.toFixed(2) : '0.00';
                         const tyLeMuonWidth = item.tyLeMuon != null ? item.tyLeMuon : 0;
-
                         return `
                             <tr>
                                 <td>${item.maThietBi || ''}</td>
@@ -457,61 +522,72 @@
                                 <td>${item.soLuongDaMuon || 0}</td>
                                 <td>${item.tongSoLuong || 0}</td>
                                 <td>
-                                    <div class="progress">
-                                        <div class="progress-bar" role="progressbar" style="width: ${tyLeMuonWidth}%"
-                                            aria-valuenow="${tyLeMuonWidth}" aria-valuemin="0" aria-valuemax="100">
-                                            ${tyLeMuon}%
+                                    <div class="progress-container">
+                                        <div class="progress">
+                                            <div class="progress-bar animate" role="progressbar"
+                                                style="--progress-width: ${tyLeMuonWidth}%"
+                                                aria-valuenow="${tyLeMuonWidth}"
+                                                aria-valuemin="0" aria-valuemax="100">
+                                            </div>
                                         </div>
+                                        <span class="progress-text">${tyLeMuon}%</span>
                                     </div>
                                 </td>
                             </tr>
                         `;
                     }).join('');
+                    setTimeout(() => {
+                        document.querySelectorAll('.progress-bar').forEach(bar => {
+                            bar.style.width = bar.style.getPropertyValue('--progress-width');
+                        });
+                    }, 100);
                 }
                 console.log('Top devices table updated:', topDevicesData);
 
-                // Hủy biểu đồ cũ nếu tồn tại
-                if (deviceCategoryChart) deviceCategoryChart.destroy();
+                // Hủy biểu đồ Bar và Line cũ nếu tồn tại
                 if (borrowReturnChart) borrowReturnChart.destroy();
                 if (importChart) importChart.destroy();
 
-                // Biểu đồ Pie: Phân bố thiết bị theo danh mục
-                deviceCategoryChart = new Chart(document.getElementById('deviceCategoryChart'), {
-                    type: 'pie',
-                    data: {
-                        labels: danhMucData.map(item => item.danhMuc),
-                        datasets: [{
-                            data: danhMucData.map(item => item.tongSoLuong),
-                            backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF']
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: { font: { size: 12 } }
-                            },
-                            tooltip: tooltipOptions
+                // Biểu đồ Pie: Phân bố thiết bị theo danh mục (only on initial load)
+                if (isInitialLoad && !deviceCategoryChart) {
+                    deviceCategoryChart = new Chart(document.getElementById('deviceCategoryChart'), {
+                        type: 'pie',
+                        data: {
+                            labels: danhMucData.map(item => item.danhMuc || 'Unknown'),
+                            datasets: [{
+                                data: danhMucData.map(item => item.tongSoLuong || 0),
+                                backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: { font: { size: 12 } }
+                                },
+                                tooltip: tooltipOptions
+                            }
                         }
-                    }
-                });
+                    });
+                    console.log('Pie chart rendered successfully.');
+                }
 
                 // Biểu đồ Stacked Bar: Thiết bị mượn/trả theo tháng
                 borrowReturnChart = new Chart(document.getElementById('borrowReturnChart'), {
                     type: 'bar',
                     data: {
-                        labels: muonTraData.map(item => `Tháng ${item.thang}`),
+                        labels: muonTraData.map(item => `Tháng ${item.thang || 'Unknown'}`),
                         datasets: [
                             {
                                 label: 'Mượn',
-                                data: muonTraData.map(item => item.soLuongMuon),
+                                data: muonTraData.map(item => item.soLuongMuon || 0),
                                 backgroundColor: '#36A2EB'
                             },
                             {
                                 label: 'Trả',
-                                data: muonTraData.map(item => item.soLuongTra),
+                                data: muonTraData.map(item => item.soLuongTra || 0),
                                 backgroundColor: '#FF6384'
                             }
                         ]
@@ -544,10 +620,10 @@
                 importChart = new Chart(document.getElementById('importChart'), {
                     type: 'line',
                     data: {
-                        labels: nhapData.map(item => `Tháng ${item.thang}`),
+                        labels: nhapData.map(item => `Tháng ${item.thang || 'Unknown'}`),
                         datasets: [{
                             label: 'Số lượng nhập',
-                            data: nhapData.map(item => item.soLuongNhap),
+                            data: nhapData.map(item => item.soLuongNhap || 0),
                             borderColor: '#4BC0C0',
                             fill: false,
                             tension: 0.1,
@@ -574,22 +650,26 @@
                     }
                 });
 
-                console.log('Charts rendered successfully.');
+                console.log('Bar and Line charts rendered successfully.');
             } catch (error) {
                 console.error('Lỗi khi lấy dữ liệu:', error);
-                alert(`Không thể tải dữ liệu: ${error.message}. Vui lòng kiểm tra kết nối hoặc thử lại.`);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: `Không thể tải dữ liệu: ${error.message}. Vui lòng kiểm tra kết nối hoặc thử lại.`,
+                    confirmButtonColor: '#2A5C8E'
+                });
                 topDevicesTableBody.innerHTML = '<tr><td colspan="6" class="text-center">Lỗi tải dữ liệu.</td></tr>';
             } finally {
-                // Xóa loading overlays
                 loadingOverlays.forEach(overlay => overlay.remove());
             }
         }
 
         // Tải dữ liệu ban đầu
-        loadData(currentYear, topNInput.value);
+        loadData(currentYear, topNInput.value, true);
 
         // Xử lý thay đổi năm và topN với debounce
-        const debouncedLoadData = debounce((year, topN) => loadData(year, topN), 500);
+        const debouncedLoadData = debounce((year, topN) => loadData(year, topN, false), 500);
         yearInput.addEventListener('input', () => {
             const year = yearInput.value;
             const topN = topNInput.value;
@@ -600,7 +680,5 @@
             const topN = topNInput.value;
             debouncedLoadData(year, topN);
         });
-
-        // Không sử dụng resize event cho biểu đồ nữa vì đã đặt chiều cao cố định
     });
 </script>

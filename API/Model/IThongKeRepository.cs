@@ -9,7 +9,7 @@ namespace API.Model
     public interface IThongKeRepository
     {
         Task<ThongKeTongQuan> ThongKeTongQuan(int nam);
-        Task<List<PhanBoTheoDanhMuc>> PhanBoTheoDanhMuc(int nam);
+        Task<List<PhanBoTheoDanhMuc>> PhanBoTheoDanhMuc();
         Task<List<ThongKeMuonTraTheoThang>> ThongKeMuonTraTheoThang(int nam);
         Task<List<XuHuongNhapThietBiTheoThang>> XuHuongNhapThietBiTheoThang(int nam); 
         Task<List<ThietBiMuonNhieuNhat>> ThietBiMuonNhieuNhat(int nam, int top);

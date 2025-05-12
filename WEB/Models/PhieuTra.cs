@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿
 
 namespace WEB.Models
 {
@@ -18,6 +16,11 @@ namespace WEB.Models
 
         public bool TinhTrang { get; set; } = false; // 0: Không duyệt, 1: Đã duyệt
 
+        public  NguoiDung? NguoiGui { get; set; }
 
+    
+        public  NguoiDung? NguoiDuyet { get; set; }
     }
+
+   
 }

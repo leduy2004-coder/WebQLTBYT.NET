@@ -1,4 +1,5 @@
-﻿@model WEB.Models.Response.TrangChuResponse
+﻿
+@model WEB.Models.Response.TrangChuResponse
 
 @{
     ViewData["Title"] = "Medical Equipment";
@@ -11,6 +12,22 @@
 }
 
 <div class="container-fluid my-4">
+    <!-- Success/Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     <!-- Navigation Tabs -->
     <ul class="nav nav-tabs mb-4">
         @foreach (var danhMuc in Model.listDanhMuc)
@@ -56,9 +73,25 @@
                             {
                                 <p>Không có ảnh</p>
                             }
-                            
+
                             <div class="equipment-overlay position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-dark bg-opacity-50">
-                                <a href="@Url.Action("Details", "Equipment", new { id = equipment.MaThietBi })" class="btn btn-secondary btn-sm">Xem</a>
+                                <a href="@Url.Action("Details", "Equipment", new { id = equipment.MaThietBi })" class="btn btn-secondary btn-sm me-2">Xem</a>
+                                @if (userRole == 4) // Inbound role
+                                {
+                                    <button class="btn btn-secondary btn-sm edit-equipment-btn"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editEquipmentModal"
+                                            data-ma-thiet-bi="@equipment.MaThietBi"
+                                            data-ten-thiet-bi="@equipment.TenThietBi"
+                                            data-so-luong-tong="@equipment.SoLuongTong"
+                                            data-so-luong-con="@equipment.SoLuongCon"
+                                            data-ma-danh-muc="@equipment.MaDanhMuc"
+                                            data-ma-loai="@equipment.MaLoai"
+                                            data-hinh-anh="@equipment.HinhAnhBase64"
+                                            data-mo-ta="@equipment.MoTa">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </button>
+                                }
                             </div>
                         </div>
                         <div class="equipment-info mt-2">
@@ -116,7 +149,6 @@
                                 <option value="B">Loại B</option>
                                 <option value="C">Loại C</option>
                                 <option value="D">Loại D</option>
-                     
                             </select>
                         </div>
                         <div class="mb-3">
@@ -128,6 +160,72 @@
                             <textarea class="form-control" id="MoTa" name="MoTa" rows="3"></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Thêm thiết bị</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Edit Equipment Modal -->
+@if (userRole == 4) // Inbound role
+{
+    <div class="modal fade" id="editEquipmentModal" tabindex="-1" aria-labelledby="editEquipmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editEquipmentModalLabel">Cập nhật thiết bị</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form asp-action="CapNhatThietBi" asp-controller="ThietBi" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="EditMaThietBi" class="form-label">Mã thiết bị</label>
+                            <input type="text" class="form-control" id="EditMaThietBi" name="MaThietBi" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="EditTenThietBi" class="form-label">Tên thiết bị</label>
+                            <input type="text" class="form-control" id="EditTenThietBi" name="TenThietBi" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="EditSoLuongTong" class="form-label">Số lượng tổng</label>
+                            <input type="number" class="form-control" id="EditSoLuongTong" name="SoLuongTong" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="EditSoLuongCon" class="form-label">Số lượng còn</label>
+                            <input type="number" class="form-control" id="EditSoLuongCon" name="SoLuongCon" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="EditMaDanhMuc" class="form-label">Danh mục</label>
+                            <select class="form-select" id="EditMaDanhMuc" name="MaDanhMuc" required>
+                                <option value="">Chọn danh mục</option>
+                                @foreach (var danhMuc in Model.listDanhMuc)
+                                {
+                                    <option value="@danhMuc.MaDanhMuc">@danhMuc.TenDanhMuc</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="EditMaLoai" class="form-label">Loại thiết bị</label>
+                            <select class="form-select" id="EditMaLoai" name="MaLoai" required>
+                                <option value="">Chọn loại</option>
+                                <option value="A">Loại A</option>
+                                <option value="B">Loại B</option>
+                                <option value="C">Loại C</option>
+                                <option value="D">Loại D</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="EditHinhAnh" class="form-label">Hình ảnh</label>
+                            <input type="file" class="form-control" id="EditHinhAnh" name="HinhAnh" accept="image/*">
+                            <img id="EditHinhAnhPreview" src="" class="img-fluid mt-2" style="max-height: 100px; display: none;" alt="Hình ảnh hiện tại" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="EditMoTa" class="form-label">Mô tả</label>
+                            <textarea class="form-control" id="EditMoTa" name="MoTa" rows="3"></textarea>
+                        </div>
+                        <div id="editFormErrors" class="text-danger" style="display: none;"></div>
+                        <button type="submit" class="btn btn-primary w-100">Cập nhật thiết bị</button>
                     </form>
                 </div>
             </div>
@@ -250,3 +348,54 @@
         color: #333;
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Populate Edit Equipment Modal
+        document.querySelectorAll('.edit-equipment-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const maThietBi = this.getAttribute('data-ma-thiet-bi');
+                const tenThietBi = this.getAttribute('data-ten-thiet-bi');
+                const soLuongTong = this.getAttribute('data-so-luong-tong');
+                const soLuongCon = this.getAttribute('data-so-luong-con');
+                const maDanhMuc = this.getAttribute('data-ma-danh-muc');
+                const maLoai = this.getAttribute('data-ma-loai');
+                const hinhAnh = this.getAttribute('data-hinh-anh');
+                const moTa = this.getAttribute('data-mo-ta');
+
+                // Populate form fields
+                document.getElementById('EditMaThietBi').value = maThietBi;
+                document.getElementById('EditTenThietBi').value = tenThietBi;
+                document.getElementById('EditSoLuongTong').value = soLuongTong;
+                document.getElementById('EditSoLuongCon').value = soLuongCon;
+                document.getElementById('EditMaDanhMuc').value = maDanhMuc;
+                document.getElementById('EditMaLoai').value = maLoai;
+                document.getElementById('EditMoTa').value = moTa;
+
+                // Show current image preview
+                const imgPreview = document.getElementById('EditHinhAnhPreview');
+                if (hinhAnh) {
+                    imgPreview.src = hinhAnh;
+                    imgPreview.style.display = 'block';
+                } else {
+                    imgPreview.style.display = 'none';
+                }
+            });
+        });
+
+        // Validate SoLuongTong >= SoLuongCon on form submission
+        document.querySelector('#editEquipmentModal form').addEventListener('submit', function (e) {
+            const soLuongTong = parseInt(document.getElementById('EditSoLuongTong').value);
+            const soLuongCon = parseInt(document.getElementById('EditSoLuongCon').value);
+            const errorDiv = document.getElementById('editFormErrors');
+
+            if (soLuongTong < soLuongCon) {
+                e.preventDefault();
+                errorDiv.textContent = 'Số lượng tổng không được nhỏ hơn số lượng còn.';
+                errorDiv.style.display = 'block';
+            } else {
+                errorDiv.style.display = 'none';
+            }
+        });
+    });
+</script>

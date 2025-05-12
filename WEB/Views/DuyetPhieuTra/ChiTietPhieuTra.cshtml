@@ -6,12 +6,12 @@
             <strong>Mã Phiếu Trả:</strong> @Model.PhieuTra.MaPhieuTra
         </div>
         <div class="col-md-6">
-            <strong>Mã Người Gửi:</strong> @Model.PhieuTra.MaNguoiGui
+            <strong>Người Gửi:</strong> @Model.PhieuTra.NguoiGui.HoTen
         </div>
     </div>
     <div class="row mb-3">
         <div class="col-md-6">
-            <strong>Mã Người Duyệt:</strong> @(Model.PhieuTra.MaNguoiDuyet ?? "Chưa duyệt")
+            <strong>Người Duyệt:</strong> @(Model.PhieuTra?.NguoiDuyet?.HoTen ?? "Chưa duyệt")
         </div>
         <div class="col-md-6">
             <strong>Ngày Trả:</strong> @Model.PhieuTra.NgayTra.ToString("dd/MM/yyyy")

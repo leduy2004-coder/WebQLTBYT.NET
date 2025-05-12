@@ -36,12 +36,16 @@ namespace API.Model.Impl
         {
             return await _context.PhieuTra
                                  .Where(tb => tb.MaPhieuTra == maPT)
+                                 .Include(p => p.NguoiDuyet)
+                                 .Include(p => p.NguoiGui)
                                  .FirstAsync();
         }
 
         public async Task<IEnumerable<PhieuTra>> LayTatCa()
         {
             var danhSachPT = await _context.PhieuTra
+                .Include(p => p.NguoiDuyet)
+                  .Include(p => p.NguoiGui)
                 .ToListAsync();
             return danhSachPT;
         }

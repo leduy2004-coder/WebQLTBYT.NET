@@ -70,8 +70,8 @@
                                         {
                                             <tr class="phieu-tra-row" data-ma="@phieuTra.MaPhieuTra" style="cursor: pointer;">
                                                 <td>@phieuTra.MaPhieuTra</td>
-                                                <td>@phieuTra.MaNguoiGui</td>
-                                                <td>@phieuTra.MaNguoiDuyet</td>
+                                                <td>@phieuTra?.NguoiGui.HoTen</td>
+                                                <td>@phieuTra?.NguoiDuyet.HoTen</td>
                                                 <td>@phieuTra.NgayTra.ToString("dd/MM/yyyy")</td>
                                                 <td>
                                                     <button type="button" class="btn btn-info btn-sm view-chi-tiet" data-ma="@phieuTra.MaPhieuTra">
@@ -120,7 +120,7 @@
                                                         <input type="checkbox" name="selectedPhieuTraIds" value="@phieuTra.MaPhieuTra" class="select-item">
                                                     </td>
                                                     <td>@phieuTra.MaPhieuTra</td>
-                                                    <td>@phieuTra.MaNguoiGui</td>
+                                                    <td>@phieuTra.NguoiGui.HoTen</td>
                                                     <td>@phieuTra.NgayTra.ToString("dd/MM/yyyy")</td>
                                                     <td>
                                                         <button type="button" class="btn btn-info btn-sm view-chi-tiet" data-ma="@phieuTra.MaPhieuTra">

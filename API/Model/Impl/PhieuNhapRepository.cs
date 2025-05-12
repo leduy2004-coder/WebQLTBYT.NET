@@ -19,6 +19,7 @@ namespace API.Model.Impl
         public async Task<PhieuNhap> LayPNTheoMa(int maPN)
         {
             return await _context.PhieuNhap
+                                    .Include(p => p.NguoiDung)  
                                  .Where(tb => tb.MaPhieuNhap == maPN)
                                  .FirstAsync();
 
@@ -27,6 +28,7 @@ namespace API.Model.Impl
         public async Task<IEnumerable<PhieuNhap>> LayTatCa()
         {
             var danhSachPN = await _context.PhieuNhap
+                .Include(p => p.NguoiDung)
                 .ToListAsync();
             return danhSachPN;
         }

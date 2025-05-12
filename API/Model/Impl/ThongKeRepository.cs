@@ -32,10 +32,10 @@ namespace API.Model.Impl
             };
         }
 
-        public async Task<List<PhanBoTheoDanhMuc>> PhanBoTheoDanhMuc(int nam)
+        public async Task<List<PhanBoTheoDanhMuc>> PhanBoTheoDanhMuc()
         {
             return await _context.Set<PhanBoTheoDanhMuc>()
-                .FromSqlRaw("EXEC PhanBoTheoDanhMuc @Nam", new SqlParameter("@Nam", nam))
+                .FromSqlRaw("EXEC PhanBoTheoDanhMuc")
                 .ToListAsync();
         }
 

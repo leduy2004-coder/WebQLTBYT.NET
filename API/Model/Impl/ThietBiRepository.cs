@@ -94,5 +94,41 @@ namespace API.Model.Impl
             return tbResponse;
         }
 
+        public async Task<ThemThietBiResponse> CapNhatThietBi(ThemThietBiRequest tb)
+        {
+            try
+            {
+                var existingTb = await _context.ThietBi.FirstOrDefaultAsync(p => p.MaThietBi == tb.MaThietBi);
+
+                if (existingTb == null)
+                {
+                    throw new KeyNotFoundException("Không tìm thấy tb với mã tb: " + tb.MaThietBi);
+                }
+                existingTb.TenThietBi = tb.TenThietBi;
+                existingTb.SoLuongTong = tb.SoLuongTong;
+                existingTb.MaDanhMuc = tb.MaDanhMuc;
+                existingTb.MaLoai = tb.MaLoai;
+                existingTb.MoTa = tb.MoTa;
+
+                // Handle image upload (only if provided)
+                if (tb.HinhAnh != null && tb.HinhAnh.Length > 0)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await tb.HinhAnh.CopyToAsync(memoryStream);
+                        existingTb.HinhAnh = memoryStream.ToArray();
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                var tbResponse = existingTb.Adapt<ThemThietBiResponse>();
+                return tbResponse;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Có lỗi xảy ra khi cập nhật phim.", ex);
+            }
+        }
     }
 }

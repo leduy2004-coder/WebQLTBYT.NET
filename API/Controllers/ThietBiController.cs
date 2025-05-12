@@ -87,5 +87,23 @@ namespace API.Controllers
             }
         }
 
+
+        [HttpPut]
+        public async Task<ActionResult<ThemThietBiResponse>> CapNhatThietBi(ThemThietBiRequest tb)
+        {
+            if (tb == null)
+            {
+                return BadRequest("Thông tin thiết bị không hợp lệ."); 
+            }
+            try
+            {
+                var tbm = await thietBiRepository.CapNhatThietBi(tb);
+                return Ok(tbm);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi khi thêm thiết bị: {ex.Message}");
+            }
+        }
     }
 }

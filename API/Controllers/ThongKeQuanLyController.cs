@@ -22,10 +22,10 @@ public class ThongKeController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("PhanBoTheoDanhMuc/{nam}")]
-    public async Task<IActionResult> PhanBoTheoDanhMuc(int nam)
+    [HttpGet("PhanBoTheoDanhMuc")]
+    public async Task<IActionResult> PhanBoTheoDanhMuc()
     {
-        var result = await _thongKeRepository.PhanBoTheoDanhMuc(nam);
+        var result = await _thongKeRepository.PhanBoTheoDanhMuc();
         return Ok(result);
     }
 

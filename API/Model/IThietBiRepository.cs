@@ -14,5 +14,6 @@ namespace API.Model
         Task<IEnumerable<ThietBi>> LayTBTheoDanhMuc(String maDM);
 
         Task<ThemThietBiResponse> ThemThietBi(ThemThietBiRequest tb);
+        Task<ThemThietBiResponse> CapNhatThietBi(ThemThietBiRequest tb);
     }
 }
