@@ -12,6 +12,7 @@ namespace API.Model
         Task<IEnumerable<PhieuTra>> LayTatCa();
         Task<PhieuTra> LayPTTheoMa(int maPT);
 
+        Task<bool> XoaPhieuTra(int maPT);
         Task<bool> DuyetPhieuTra(DuyetPhieuTraRequest request);
     }
 }

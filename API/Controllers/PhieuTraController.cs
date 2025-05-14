@@ -91,5 +91,19 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error processing request.");
             }
         }
+        [HttpDelete("{maPT}")]
+        public async Task<IActionResult> XoaPhieuNhap(int maPT)
+        {
+            try
+            {
+                var result = await phieuTraRepository.XoaPhieuTra(maPT);
+                return Ok(maPT);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error deleting data.");
+            }
+        }
     }
 }

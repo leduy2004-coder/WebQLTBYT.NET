@@ -49,5 +49,14 @@ namespace API.Model.Impl
                 .ToListAsync();
             return danhSachPT;
         }
+        public async Task<bool> XoaPhieuTra(int maPT)
+        {
+            var pt = await _context.PhieuTra.FirstOrDefaultAsync(p => p.MaPhieuTra == maPT);
+            if (pt == null) return false;
+
+            _context.PhieuTra.Remove(pt);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

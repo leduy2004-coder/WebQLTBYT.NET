@@ -64,6 +64,22 @@ namespace API.Controllers
             }
         }
 
+        [HttpGet("LayCTPMTheoTinhTrang/{TT}")]
+        public async Task<IActionResult> LayCTPMTheoTT(int TT)
+        {
+            try
+            {
+                var result = await cTPhieuMuonRepository.LayCTPMTheoTT(TT);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return StatusCode(500, "Lỗi khi lấy dữ liệu.");
+            }
+        }
+
+
         [HttpPost("DuyetCTPhieuMuon")]
         public async Task<IActionResult> DuyetCTPhieuMuon([FromBody] DuyetChiTietPhieuMuon dto)
         {

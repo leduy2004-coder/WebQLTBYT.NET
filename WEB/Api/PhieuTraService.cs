@@ -61,6 +61,14 @@ namespace WEB.Api
             var response = await _apiService.PostDataAsync<bool>("/api/PhieuTra/DuyetPhieuTra", data);
             return response;
         }
+        public async Task<bool> XoaPhieuTra(int maPT)
+        {
+
+            string url = $"api/PhieuTra/{maPT}";
+            bool deleteSuccess = await _apiService.DeleteDataAsync(url);
+
+            return deleteSuccess;
+        }
 
     }
 }

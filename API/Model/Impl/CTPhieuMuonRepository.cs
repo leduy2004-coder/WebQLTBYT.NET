@@ -23,6 +23,13 @@ namespace API.Model.Impl
                 .Include(ct => ct.ThietBi)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<ChiTietPhieuMuon>> LayCTPMTheoTT(int TT)
+        {
+            return await _context.Set<ChiTietPhieuMuon>()
+                .Where(ct => ct.TinhTrang == TT)
+                .Include(ct => ct.ThietBi)
+                .ToListAsync();
+        }
 
         public async Task<bool> DuyetCTPhieuMuon(DuyetChiTietPhieuMuon dto)
         {
