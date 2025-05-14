@@ -1,0 +1,51 @@
+using Microsoft.AspNetCore.Mvc;
+using WEB.Api;
+using WEB.Models.Response;
+using Microsoft.AspNetCore.Authorization;
+
+namespace WEB.Controllers
+{
+    [Authorize(Roles = "Staff")]
+    public class PhieuMuonStaffController : Controller
+    {
+        private readonly PhieuMuonService _phieuMuonService;
+
+        public PhieuMuonStaffController(PhieuMuonService phieuMuonService)
+        {
+            _phieuMuonService = phieuMuonService;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var userId = User.Identity.Name; // Lấy ID của user đang đăng nhập
+            var allPhieuMuon = await _phieuMuonService.LayPhieuMuon();
+            
+            // Lọc chỉ lấy phiếu mượn của staff hiện tại
+            var phieuMuonList = allPhieuMuon.Where(pm => pm.MaNguoiGui == userId).ToList();
+
+            return View(phieuMuonList);
+        }
+
+        public async Task<IActionResult> ChiTietPhieuMuon(int maPM)
+        {
+            var userId = User.Identity.Name;
+            var phieuMuon = await _phieuMuonService.LayPMTheoMa(maPM);
+
+            // Kiểm tra xem phiếu mượn có thuộc về staff hiện tại không
+            if (phieuMuon == null || phieuMuon.MaNguoiGui != userId)
+            {
+                return RedirectToAction("Index");
+            }
+
+            var chiTietPhieuMuonList = await _phieuMuonService.LayCTPhieuMuonTheoPM(maPM);
+
+            var model = new ChiTietPhieuMuonResponse
+            {
+                PhieuMuon = phieuMuon,
+                ChiTietPhieuMuonList = chiTietPhieuMuonList
+            };
+
+            return PartialView("ChiTietPhieuMuon", model);
+        }
+    }
+} 

@@ -1,11 +1,20 @@
 using System.Net.Http.Headers;
 using Web.Api;
 using WEB.Api;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Cấu hình Authentication
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/DangNhap/Index";
+        options.AccessDeniedPath = "/DangNhap/Index";
+    });
 
 // Cấu hình HttpClient
 builder.Services.AddHttpClient<ApiService>(client =>
@@ -24,13 +33,11 @@ builder.Services.AddSession(options =>
 });
 
 // Thêm các service khác vào Dependency Injection
-
 builder.Services.AddScoped<DangNhapService>();
 builder.Services.AddScoped<ThietBiService>();
 builder.Services.AddScoped<PhieuNhapService>();
 builder.Services.AddScoped<PhieuTraService>();
 builder.Services.AddScoped<PhieuMuonService>();
-
 
 var app = builder.Build();
 
@@ -44,6 +51,9 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
+// Thêm middleware authentication trước authorization
+app.UseAuthentication();
 app.UseSession();
 app.UseAuthorization();
 
