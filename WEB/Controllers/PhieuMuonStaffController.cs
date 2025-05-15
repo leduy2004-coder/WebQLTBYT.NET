@@ -15,15 +15,22 @@ namespace WEB.Controllers
             _phieuMuonService = phieuMuonService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? maPM)
         {
             var userId = User.Identity.Name; // Lấy ID của user đang đăng nhập
             var allPhieuMuon = await _phieuMuonService.LayPhieuMuon();
             
             // Lọc chỉ lấy phiếu mượn của staff hiện tại
-            var phieuMuonList = allPhieuMuon.Where(pm => pm.MaNguoiGui == userId).ToList();
+            var phieuMuonList = allPhieuMuon.Where(pm => pm.MaNguoiGui == userId);
 
-            return View(phieuMuonList);
+            // Lọc theo mã phiếu mượn nếu có
+            if (maPM.HasValue)
+            {
+                phieuMuonList = phieuMuonList.Where(pm => pm.MaPhieuMuon == maPM);
+                ViewBag.MaPMFilter = maPM;
+            }
+
+            return View(phieuMuonList.ToList());
         }
 
         public async Task<IActionResult> ChiTietPhieuMuon(int maPM)

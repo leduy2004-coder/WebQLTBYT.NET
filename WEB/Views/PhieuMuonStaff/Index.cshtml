@@ -14,10 +14,10 @@
             <div class="mb-4">
                 <form method="get" asp-action="Index" asp-controller="PhieuMuonStaff" class="d-flex align-items-center">
                     <div class="input-group w-50">
-                        <input type="number" class="form-control me-2" name="maPM" placeholder="Tìm theo Mã Phiếu Mượn" value="@(ViewBag.MaPMFilter ?? "")">
+                        <input type="number" class="form-control me-2" name="maPM" placeholder="Tìm theo Mã Phiếu Mượn" value="@ViewBag.MaPMFilter">
                         <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Tìm kiếm</button>
                     </div>
-                    @if (!string.IsNullOrEmpty(ViewBag.MaPMFilter))
+                    @if (ViewBag.MaPMFilter != null)
                     {
                         <a href="@Url.Action("Index", "PhieuMuonStaff")" class="btn btn-secondary ms-2">Xóa bộ lọc</a>
                     }
