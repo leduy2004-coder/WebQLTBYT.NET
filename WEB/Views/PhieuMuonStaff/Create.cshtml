@@ -88,9 +88,49 @@
 </div>
 
 @section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
     <script>
         $(document).ready(function () {
             let chiTietCount = 1;
+
+            // Form submission handling
+            $('form').on('submit', function (e) {
+                e.preventDefault(); // Ngăn form submit mặc định
+
+                if ($(this).valid()) {
+                    const formData = $(this).serialize();
+
+                    // Hiển thị loading
+                    const submitBtn = $(this).find('button[type="submit"]');
+                    const originalText = submitBtn.html();
+                    submitBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xử lý...');
+                    submitBtn.prop('disabled', true);
+
+                    // Gửi request bằng AJAX
+                    $.ajax({
+                        url: $(this).attr('action'),
+                        method: 'POST',
+                        data: formData,
+                        success: function (response) {
+                            // Chuyển hướng về trang Index
+                            window.location.href = '@Url.Action("Index", "PhieuMuonStaff")';
+                        },
+                        error: function (xhr, status, error) {
+                            // Hiển thị thông báo lỗi
+                            let errorMessage = 'Có lỗi xảy ra khi tạo phiếu mượn.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                            alert(errorMessage);
+
+                            // Reset button
+                            submitBtn.html(originalText);
+                            submitBtn.prop('disabled', false);
+                        }
+                    });
+                }
+            });
 
             $('#themChiTiet').click(function () {
                 const template = $('.chi-tiet-item').first().clone();
@@ -119,7 +159,14 @@
 
                 $('#chiTietContainer').append(template);
                 chiTietCount++;
+
+                // Re-parse validation on new elements
+                $.validator.unobtrusive.parse(template);
             });
+
+            // Set default dates
+            $('input[name$=".NgayMuon"]').val(new Date().toISOString().split('T')[0]);
+            $('input[name$=".NgayDuKienTra"]').val(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
         });
     </script>
 } 

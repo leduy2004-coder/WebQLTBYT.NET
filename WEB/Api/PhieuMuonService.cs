@@ -47,8 +47,20 @@ namespace WEB.Api
 
         public async Task<PhieuMuon> ThemPhieuMuon(ThemPhieuMuonRequest request)
         {
-            var response = await _apiService.PostDataAsync<PhieuMuon>("/api/PhieuMuon/ThemPhieuMuon", request);
-            return response;
+            try
+            {
+                var response = await _apiService.PostDataAsync<PhieuMuon>("/api/PhieuMuon/ThemPhieuMuon", request);
+                if (response == null)
+                {
+                    throw new Exception("Không thể tạo phiếu mượn. Vui lòng thử lại sau.");
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception here if you have a logging system
+                throw new Exception($"Lỗi khi tạo phiếu mượn: {ex.Message}");
+            }
         }
     }
 }
