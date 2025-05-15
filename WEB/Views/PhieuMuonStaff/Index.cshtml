@@ -29,45 +29,52 @@
                 </form>
             </div>
 
-            <!-- PhieuMuon Table -->
             <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
                         <tr>
                             <th>Mã Phiếu Mượn</th>
-                            <th>Người Duyệt</th>
+                            <th>Ngày Tạo</th>
                             <th>Tình Trạng</th>
-                            <th>Hành động</th>
+                            <th>Người Duyệt</th>
+                            <th>Thao Tác</th>
                         </tr>
                     </thead>
                     <tbody>
                         @if (Model == null || !Model.Any())
                         {
                             <tr>
-                                <td colspan="4" class="text-center">Bạn chưa có phiếu mượn nào.</td>
+                                <td colspan="5" class="text-center">Không có phiếu mượn nào.</td>
                             </tr>
                         }
                         else
                         {
-                            foreach (var phieuMuon in Model)
+                            @foreach (var item in Model)
                             {
                                 <tr>
-                                    <td>@phieuMuon.MaPhieuMuon</td>
-                                    <td>@(phieuMuon.NguoiDuyet?.HoTen ?? "Chưa duyệt")</td>
+                                    <td>@item.MaPhieuMuon</td>
+                                    <td>@(item.NgayTao?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</td>
                                     <td>
-                                        @if (phieuMuon.TinhTrang)
+                                        @if (item.TinhTrang)
                                         {
                                             <span class="badge bg-success">Đã duyệt</span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-warning text-dark">Chưa duyệt</span>
+                                            <span class="badge bg-warning">Chưa duyệt</span>
                                         }
                                     </td>
+                                    <td>@(item.NguoiDuyet?.HoTen ?? "N/A")</td>
                                     <td>
-                                        <button type="button" class="btn btn-info btn-sm view-chi-tiet" data-ma="@phieuMuon.MaPhieuMuon">
+                                        <button type="button" class="btn btn-info btn-sm" onclick="showChiTiet(@item.MaPhieuMuon)">
                                             <i class="fas fa-eye"></i> Chi tiết
                                         </button>
+                                        @if (!item.TinhTrang)
+                                        {
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="deletePhieuMuon(@item.MaPhieuMuon)">
+                                                <i class="fas fa-trash"></i> Xóa
+                                            </button>
+                                        }
                                     </td>
                                 </tr>
                             }
@@ -75,21 +82,18 @@
                     </tbody>
                 </table>
             </div>
-        </div>
-    </div>
-</div>
 
-<!-- Modal: Chi tiết phiếu mượn -->
-<div class="modal fade" id="chiTietPhieuMuonModal" tabindex="-1" aria-labelledby="chiTietPhieuMuonModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header" style="background-color: #2A5C8E; color: white; border-bottom: none;">
-                <h5 class="modal-title" id="chiTietPhieuMuonModalLabel">Chi Tiết Phiếu Mượn</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body modal-body-scrollable">
-                <div id="chiTietPhieuMuonContent" class="table-responsive">
-                    <!-- Nội dung sẽ được load động -->
+            <!-- Modal Chi Tiết -->
+            <div class="modal fade" id="chiTietModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Chi Tiết Phiếu Mượn</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body" id="chiTietContent">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -98,20 +102,32 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function () {
-            // Xử lý sự kiện click nút xem chi tiết
-            $('.view-chi-tiet').click(function () {
-                var maPM = $(this).data('ma');
-                
-                // Load chi tiết phiếu mượn
-                $.get('@Url.Action("ChiTietPhieuMuon", "PhieuMuonStaff")', { maPM: maPM }, function (data) {
-                    $('#chiTietPhieuMuonContent').html(data);
-                    $('#chiTietPhieuMuonModal').modal('show');
-                }).fail(function (error) {
-                    console.error('Error:', error);
-                    alert('Có lỗi xảy ra khi tải chi tiết phiếu mượn');
-                });
+        function showChiTiet(maPM) {
+            $.get('@Url.Action("ChiTietPhieuMuon", "PhieuMuonStaff")', { maPM: maPM }, function (data) {
+                $('#chiTietContent').html(data);
+                $('#chiTietModal').modal('show');
             });
-        });
+        }
+
+        function deletePhieuMuon(maPM) {
+            if (confirm('Bạn có chắc chắn muốn xóa phiếu mượn này không?')) {
+                $.ajax({
+                    url: '@Url.Action("Delete", "PhieuMuonStaff")',
+                    type: 'POST',
+                    data: { maPM: maPM },
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Có lỗi xảy ra khi xóa phiếu mượn.');
+                    }
+                });
+            }
+        }
     </script>
 } 

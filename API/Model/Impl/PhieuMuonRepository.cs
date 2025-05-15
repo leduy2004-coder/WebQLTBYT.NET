@@ -75,5 +75,36 @@ namespace API.Model.Impl
                 throw;
             }
         }
+
+        public async Task<bool> XoaPhieuMuon(int maPM)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // Lấy phiếu mượn
+                var phieuMuon = await _context.PhieuMuon
+                    .Include(p => p.ChiTietPhieuMuons)
+                    .FirstOrDefaultAsync(p => p.MaPhieuMuon == maPM);
+
+                if (phieuMuon == null)
+                    return false;
+
+                // Xóa các chi tiết phiếu mượn trước
+                _context.ChiTietPhieuMuon.RemoveRange(phieuMuon.ChiTietPhieuMuons);
+
+                // Xóa phiếu mượn
+                _context.PhieuMuon.Remove(phieuMuon);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return true;
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
     }
 }

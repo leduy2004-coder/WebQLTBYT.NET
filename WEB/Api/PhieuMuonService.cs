@@ -62,5 +62,18 @@ namespace WEB.Api
                 throw new Exception($"Lỗi khi tạo phiếu mượn: {ex.Message}");
             }
         }
+
+        public async Task<bool> XoaPhieuMuon(int maPM)
+        {
+            try
+            {
+                var response = await _apiService.DeleteDataAsync($"/api/PhieuMuon/XoaPhieuMuon/{maPM}");
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi khi xóa phiếu mượn: {ex.Message}");
+            }
+        }
     }
 }

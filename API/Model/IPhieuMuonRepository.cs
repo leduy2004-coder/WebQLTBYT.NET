@@ -9,5 +9,6 @@ namespace API.Model
         Task<IEnumerable<PhieuMuon>> LayTatCa();
         Task<PhieuMuon?> LayPMTheoMa(int maPM);
         Task<PhieuMuon> ThemPhieuMuon(ThemPhieuMuonRequest request);
+        Task<bool> XoaPhieuMuon(int maPM);
     }
 }

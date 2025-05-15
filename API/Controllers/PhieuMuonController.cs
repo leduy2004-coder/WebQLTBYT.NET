@@ -97,5 +97,23 @@ namespace API.Controllers
                 return StatusCode(500, "Lỗi khi thêm phiếu mượn.");
             }
         }
+
+        [HttpDelete("XoaPhieuMuon/{maPM}")]
+        public async Task<IActionResult> XoaPhieuMuon(int maPM)
+        {
+            try
+            {
+                var result = await phieuMuonRepository.XoaPhieuMuon(maPM);
+                if (result)
+                    return Ok(true);
+                else
+                    return NotFound(false);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return StatusCode(500, "Lỗi khi xóa phiếu mượn.");
+            }
+        }
     }
 }
