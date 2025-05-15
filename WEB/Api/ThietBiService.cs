@@ -1,7 +1,7 @@
-﻿
-using Web.Api;
+﻿using Web.Api;
 using WEB.Models;
 using WEB.Models.Request;
+using WEB.Models.Response;
 
 namespace WEB.Api
 {
@@ -88,5 +88,10 @@ namespace WEB.Api
             }
         }
 
+        public async Task<List<ThietBiDTO>> LayTatCaThietBi()
+        {
+            var response = await _apiService.GetDataAsync<List<ThietBiDTO>>("/api/thietBi/LayTatCa");
+            return response ?? new List<ThietBiDTO>();
+        }
     }
 }

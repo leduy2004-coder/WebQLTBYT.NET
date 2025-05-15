@@ -82,5 +82,20 @@ namespace API.Controllers
                 return StatusCode(500, "Lỗi khi xử lý duyệt phiếu mượn.");
             }
         }
+
+        [HttpPost("ThemPhieuMuon")]
+        public async Task<IActionResult> ThemPhieuMuon([FromBody] ThemPhieuMuonRequest request)
+        {
+            try
+            {
+                var result = await phieuMuonRepository.ThemPhieuMuon(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return StatusCode(500, "Lỗi khi thêm phiếu mượn.");
+            }
+        }
     }
 }

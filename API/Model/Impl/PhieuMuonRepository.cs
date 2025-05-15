@@ -4,7 +4,6 @@ using API.Dto.response;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace API.Model.Impl
 {
     public class PhieuMuonRepository : IPhieuMuonRepository
@@ -30,6 +29,51 @@ namespace API.Model.Impl
                 .Include(p => p.NguoiDuyet)
                 //.Include(p => p.ChiTietPhieuMuons)
                 .FirstOrDefaultAsync(p => p.MaPhieuMuon == maPM);
+        }
+
+        public async Task<PhieuMuon> ThemPhieuMuon(ThemPhieuMuonRequest request)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // Tạo phiếu mượn mới
+                var phieuMuon = new PhieuMuon
+                {
+                    MaNguoiGui = request.MaNguoiGui,
+                    TinhTrang = false // Chưa duyệt
+                };
+
+                await _context.PhieuMuon.AddAsync(phieuMuon);
+                await _context.SaveChangesAsync();
+
+                // Thêm chi tiết phiếu mượn
+                foreach (var ctpm in request.ChiTietPhieuMuons)
+                {
+                    var chiTiet = new ChiTietPhieuMuon
+                    {
+                        MaPhieuMuon = phieuMuon.MaPhieuMuon,
+                        MaTB = ctpm.MaTB,
+                        TinhCanThiet = ctpm.TinhCanThiet,
+                        MucDich = ctpm.MucDich,
+                        NgayMuon = ctpm.NgayMuon,
+                        NgayDuKienTra = ctpm.NgayDuKienTra,
+                        SoLuongTBMuon = ctpm.SoLuongTBMuon,
+                        TinhTrang = 1 // Chưa duyệt
+                    };
+
+                    await _context.ChiTietPhieuMuon.AddAsync(chiTiet);
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return await LayPMTheoMa(phieuMuon.MaPhieuMuon);
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }

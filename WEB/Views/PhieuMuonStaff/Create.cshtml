@@ -1,0 +1,125 @@
+@model WEB.Models.Request.ThemPhieuMuonRequest
+
+@{
+    ViewData["Title"] = "Tạo Phiếu Mượn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid my-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Tạo Phiếu Mượn Mới</h5>
+
+            <form method="post" asp-action="Create" asp-controller="PhieuMuonStaff">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div id="chiTietContainer">
+                    <!-- Template cho chi tiết phiếu mượn -->
+                    <div class="chi-tiet-item border rounded p-3 mb-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Thiết Bị</label>
+                                    <select name="ChiTietPhieuMuons[0].MaTB" class="form-select" required>
+                                        <option value="">-- Chọn thiết bị --</option>
+                                        @foreach (var tb in ViewBag.ThietBis)
+                                        {
+                                            <option value="@tb.MaThietBi">@tb.TenThietBi (@tb.SoLuongCon có sẵn)</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Số Lượng Mượn</label>
+                                    <input type="number" name="ChiTietPhieuMuons[0].SoLuongTBMuon" class="form-control" required min="1" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Ngày Mượn</label>
+                                    <input type="date" name="ChiTietPhieuMuons[0].NgayMuon" class="form-control" required />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Ngày Dự Kiến Trả</label>
+                                    <input type="date" name="ChiTietPhieuMuons[0].NgayDuKienTra" class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Mục Đích</label>
+                                    <textarea name="ChiTietPhieuMuons[0].MucDich" class="form-control" required rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" name="ChiTietPhieuMuons[0].TinhCanThiet" class="form-check-input" value="true" />
+                                    <label class="form-check-label">Tình trạng khẩn cấp</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <button type="button" id="themChiTiet" class="btn btn-outline-primary">
+                        <i class="fas fa-plus"></i> Thêm Thiết Bị
+                    </button>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Tạo Phiếu Mượn</button>
+                    <a href="@Url.Action("Index", "PhieuMuonStaff")" class="btn btn-secondary">Quay Lại</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let chiTietCount = 1;
+
+            $('#themChiTiet').click(function () {
+                const template = $('.chi-tiet-item').first().clone();
+                
+                // Cập nhật các name attribute với index mới
+                template.find('select, input, textarea').each(function () {
+                    const name = $(this).attr('name');
+                    if (name) {
+                        $(this).attr('name', name.replace('[0]', `[${chiTietCount}]`));
+                    }
+                });
+
+                // Reset giá trị
+                template.find('select').val('');
+                template.find('input[type="number"]').val('');
+                template.find('input[type="date"]').val('');
+                template.find('textarea').val('');
+                template.find('input[type="checkbox"]').prop('checked', false);
+
+                // Thêm nút xóa
+                const deleteBtn = $('<button type="button" class="btn btn-danger btn-sm mt-2"><i class="fas fa-trash"></i> Xóa</button>');
+                deleteBtn.click(function () {
+                    $(this).closest('.chi-tiet-item').remove();
+                });
+                template.append(deleteBtn);
+
+                $('#chiTietContainer').append(template);
+                chiTietCount++;
+            });
+        });
+    </script>
+} 

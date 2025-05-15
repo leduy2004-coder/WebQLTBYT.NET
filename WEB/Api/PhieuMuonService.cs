@@ -1,11 +1,7 @@
-﻿
-
-
-using Web.Api;
+﻿using Web.Api;
 using WEB.Models;
 using WEB.Models.Request;
 using WEB.Models.Response;
-
 
 namespace WEB.Api
 {
@@ -47,6 +43,12 @@ namespace WEB.Api
         {
             var response = await _apiService.PostDataAsync<object>("/api/PhieuMuon/DuyetCTPhieuMuon", dto);
             return response != null;
+        }
+
+        public async Task<PhieuMuon> ThemPhieuMuon(ThemPhieuMuonRequest request)
+        {
+            var response = await _apiService.PostDataAsync<PhieuMuon>("/api/PhieuMuon/ThemPhieuMuon", request);
+            return response;
         }
     }
 }

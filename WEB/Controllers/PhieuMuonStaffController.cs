@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using WEB.Api;
 using WEB.Models.Response;
+using WEB.Models.Request;
 using Microsoft.AspNetCore.Authorization;
 
 namespace WEB.Controllers
@@ -9,10 +10,12 @@ namespace WEB.Controllers
     public class PhieuMuonStaffController : Controller
     {
         private readonly PhieuMuonService _phieuMuonService;
+        private readonly ThietBiService _thietBiService;
 
-        public PhieuMuonStaffController(PhieuMuonService phieuMuonService)
+        public PhieuMuonStaffController(PhieuMuonService phieuMuonService, ThietBiService thietBiService)
         {
             _phieuMuonService = phieuMuonService;
+            _thietBiService = thietBiService;
         }
 
         public async Task<IActionResult> Index(int? maPM)
@@ -53,6 +56,39 @@ namespace WEB.Controllers
             };
 
             return PartialView("ChiTietPhieuMuon", model);
+        }
+
+        public async Task<IActionResult> Create()
+        {
+            // Lấy danh sách thiết bị để hiển thị trong dropdown
+            var thietBis = await _thietBiService.LayTatCaThietBi();
+            ViewBag.ThietBis = thietBis;
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(ThemPhieuMuonRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                var thietBis = await _thietBiService.LayTatCaThietBi();
+                ViewBag.ThietBis = thietBis;
+                return View(request);
+            }
+
+            try
+            {
+                request.MaNguoiGui = User.Identity.Name;
+                var result = await _phieuMuonService.ThemPhieuMuon(request);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Có lỗi xảy ra khi thêm phiếu mượn. Vui lòng thử lại.");
+                var thietBis = await _thietBiService.LayTatCaThietBi();
+                ViewBag.ThietBis = thietBis;
+                return View(request);
+            }
         }
     }
 } 
