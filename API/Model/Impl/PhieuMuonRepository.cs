@@ -47,27 +47,27 @@ namespace API.Model.Impl
                 await _context.SaveChangesAsync();
 
                 // Thêm chi tiết phiếu mượn
-                foreach (var ctpm in request.ChiTietPhieuMuons)
+                foreach (var chiTiet in request.ChiTietPhieuMuons)
                 {
-                    var chiTiet = new ChiTietPhieuMuon
+                    var ctPhieuMuon = new ChiTietPhieuMuon
                     {
                         MaPhieuMuon = phieuMuon.MaPhieuMuon,
-                        MaTB = ctpm.MaTB,
-                        TinhCanThiet = ctpm.TinhCanThiet,
-                        MucDich = ctpm.MucDich,
-                        NgayMuon = ctpm.NgayMuon,
-                        NgayDuKienTra = ctpm.NgayDuKienTra,
-                        SoLuongTBMuon = ctpm.SoLuongTBMuon,
+                        MaTB = chiTiet.MaTB,
+                        TinhCanThiet = chiTiet.TinhCanThiet,
+                        MucDich = chiTiet.MucDich,
+                        NgayMuon = chiTiet.NgayMuon,
+                        NgayDuKienTra = chiTiet.NgayDuKienTra,
+                        SoLuongTBMuon = chiTiet.SoLuongTBMuon,
                         TinhTrang = 1 // Chưa duyệt
                     };
 
-                    await _context.ChiTietPhieuMuon.AddAsync(chiTiet);
+                    await _context.ChiTietPhieuMuon.AddAsync(ctPhieuMuon);
                 }
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return await LayPMTheoMa(phieuMuon.MaPhieuMuon);
+                return phieuMuon;
             }
             catch (Exception)
             {

@@ -45,23 +45,13 @@ namespace WEB.Api
             return response != null;
         }
 
-        public async Task<PhieuMuon> ThemPhieuMuon(ThemPhieuMuonRequest request)
+        public async Task<bool> ThemPhieuMuon(ThemPhieuMuonRequest request)
         {
-            try
-            {
-                var response = await _apiService.PostDataAsync<PhieuMuon>("/api/PhieuMuon/ThemPhieuMuon", request);
-                if (response == null)
-                {
-                    throw new Exception("Không thể tạo phiếu mượn. Vui lòng thử lại sau.");
-                }
-                return response;
-            }
-            catch (Exception ex)
-            {
-                // Log the exception here if you have a logging system
-                throw new Exception($"Lỗi khi tạo phiếu mượn: {ex.Message}");
-            }
+            var response = await _apiService.PostDataAsync<object>("/api/PhieuMuon/ThemPhieuMuon", request);
+            return response != null;
         }
+
+        
 
         public async Task<bool> XoaPhieuMuon(int maPM)
         {
