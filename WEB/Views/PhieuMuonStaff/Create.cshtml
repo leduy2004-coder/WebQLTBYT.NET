@@ -10,8 +10,16 @@
         <div class="card-body">
             <h5 class="card-title mb-4">Tạo Phiếu Mượn Mới</h5>
 
+            <!-- Alert for displaying errors -->
+            <div id="errorAlert" class="alert alert-danger" style="display: none;">
+                <span id="errorMessage"></span>
+            </div>
+
             <form method="post" asp-action="Create" asp-controller="PhieuMuonStaff">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                
+                <!-- Hidden field for MaNguoiGui -->
+                <input type="hidden" asp-for="MaNguoiGui" />
 
                 <div id="chiTietContainer">
                     <!-- Template cho chi tiết phiếu mượn -->
@@ -27,12 +35,14 @@
                                             <option value="@tb.MaThietBi">@tb.TenThietBi (@tb.SoLuongCon có sẵn)</option>
                                         }
                                     </select>
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="ChiTietPhieuMuons[0].MaTB" data-valmsg-replace="true"></span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
                                     <label class="form-label">Số Lượng Mượn</label>
                                     <input type="number" name="ChiTietPhieuMuons[0].SoLuongTBMuon" class="form-control" required min="1" />
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="ChiTietPhieuMuons[0].SoLuongTBMuon" data-valmsg-replace="true"></span>
                                 </div>
                             </div>
                         </div>
@@ -42,12 +52,14 @@
                                 <div class="form-group mb-3">
                                     <label class="form-label">Ngày Mượn</label>
                                     <input type="date" name="ChiTietPhieuMuons[0].NgayMuon" class="form-control" required />
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="ChiTietPhieuMuons[0].NgayMuon" data-valmsg-replace="true"></span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
                                     <label class="form-label">Ngày Dự Kiến Trả</label>
                                     <input type="date" name="ChiTietPhieuMuons[0].NgayDuKienTra" class="form-control" required />
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="ChiTietPhieuMuons[0].NgayDuKienTra" data-valmsg-replace="true"></span>
                                 </div>
                             </div>
                         </div>
@@ -56,7 +68,9 @@
                             <div class="col-md-12">
                                 <div class="form-group mb-3">
                                     <label class="form-label">Mục Đích</label>
-                                    <textarea name="ChiTietPhieuMuons[0].MucDich" class="form-control" required rows="2"></textarea>
+                                    <textarea name="ChiTietPhieuMuons[0].MucDich" class="form-control" required rows="2" minlength="10" maxlength="500"></textarea>
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="ChiTietPhieuMuons[0].MucDich" data-valmsg-replace="true"></span>
+                                    <small class="form-text text-muted">Mục đích mượn phải từ 10 đến 500 ký tự</small>
                                 </div>
                             </div>
                         </div>
@@ -94,12 +108,26 @@
         $(document).ready(function () {
             let chiTietCount = 1;
 
+            function showError(message) {
+                $('#errorMessage').text(message);
+                $('#errorAlert').fadeIn();
+                setTimeout(function() {
+                    $('#errorAlert').fadeOut();
+                }, 5000);
+            }
+
             // Form submission handling
             $('form').on('submit', function (e) {
                 e.preventDefault(); // Ngăn form submit mặc định
 
+                // Hide any existing error messages
+                $('#errorAlert').hide();
+
                 if ($(this).valid()) {
                     const formData = $(this).serialize();
+
+                    // Log form data to console for debugging
+                    console.log('Form Data:', formData);
 
                     // Hiển thị loading
                     const submitBtn = $(this).find('button[type="submit"]');
@@ -113,18 +141,38 @@
                         method: 'POST',
                         data: formData,
                         success: function (response) {
-                            // Chuyển hướng về trang Index
-                            window.location.href = '@Url.Action("Index", "PhieuMuonStaff")';
+                            if (response.success === false) {
+                                showError(response.message || 'Có lỗi xảy ra khi tạo phiếu mượn.');
+                                submitBtn.html(originalText);
+                                submitBtn.prop('disabled', false);
+                            } else {
+                                // Chuyển hướng về trang Index
+                                window.location.href = '@Url.Action("Index", "PhieuMuonStaff")';
+                            }
                         },
                         error: function (xhr, status, error) {
-                            // Hiển thị thông báo lỗi
                             let errorMessage = 'Có lỗi xảy ra khi tạo phiếu mượn.';
-                            if (xhr.responseJSON && xhr.responseJSON.message) {
-                                errorMessage = xhr.responseJSON.message;
+                            
+                            // Try to get detailed error message
+                            if (xhr.responseJSON) {
+                                if (xhr.responseJSON.message) {
+                                    errorMessage = xhr.responseJSON.message;
+                                } else if (xhr.responseJSON.errors) {
+                                    errorMessage = Object.values(xhr.responseJSON.errors).flat().join('\n');
+                                }
+                            } else if (xhr.responseText) {
+                                try {
+                                    const response = JSON.parse(xhr.responseText);
+                                    if (response.message) {
+                                        errorMessage = response.message;
+                                    }
+                                } catch (e) {
+                                    // If can't parse JSON, use the raw response text
+                                    errorMessage = xhr.responseText;
+                                }
                             }
-                            alert(errorMessage);
 
-                            // Reset button
+                            showError(errorMessage);
                             submitBtn.html(originalText);
                             submitBtn.prop('disabled', false);
                         }
@@ -139,7 +187,14 @@
                 template.find('select, input, textarea').each(function () {
                     const name = $(this).attr('name');
                     if (name) {
-                        $(this).attr('name', name.replace('[0]', `[${chiTietCount}]`));
+                        const newName = name.replace('[0]', `[${chiTietCount}]`);
+                        $(this).attr('name', newName);
+                        
+                        // Update validation attributes
+                        const validationSpan = template.find(`[data-valmsg-for="${name}"]`);
+                        if (validationSpan.length) {
+                            validationSpan.attr('data-valmsg-for', newName);
+                        }
                     }
                 });
 

@@ -3,6 +3,7 @@ using WEB.Api;
 using WEB.Models.Response;
 using WEB.Models.Request;
 using Microsoft.AspNetCore.Authorization;
+using System.Text;
 
 namespace WEB.Controllers
 {
@@ -63,21 +64,54 @@ namespace WEB.Controllers
             // Lấy danh sách thiết bị để hiển thị trong dropdown
             var thietBis = await _thietBiService.LayTatCaThietBi();
             ViewBag.ThietBis = thietBis;
-            return View();
+
+            // Khởi tạo model với MaNguoiGui
+            var model = new ThemPhieuMuonRequest
+            {
+                MaNguoiGui = User.Identity.Name
+            };
+            return View(model);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(ThemPhieuMuonRequest request)
         {
-            // Set MaNguoiGui trước khi validate model
-            request.MaNguoiGui = User.Identity.Name;
+            // Đảm bảo luôn có MaNguoiGui
+            if (string.IsNullOrEmpty(request.MaNguoiGui))
+            {
+                request.MaNguoiGui = User.Identity.Name;
+            }
 
+            // Validate model
             if (!ModelState.IsValid)
+            {
+                var errorMessages = new StringBuilder();
+                foreach (var modelState in ModelState.Values)
+                {
+                    foreach (var error in modelState.Errors)
+                    {
+                        errorMessages.AppendLine(error.ErrorMessage);
+                    }
+                }
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = errorMessages.ToString() });
+                }
+
+                var thietBis = await _thietBiService.LayTatCaThietBi();
+                ViewBag.ThietBis = thietBis;
+                return View(request);
+            }
+
+            // Validate business rules
+            if (request.ChiTietPhieuMuons == null || !request.ChiTietPhieuMuons.Any())
             {
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
-                    return Json(new { success = false, message = "Dữ liệu không hợp lệ" });
+                    return Json(new { success = false, message = "Phải có ít nhất một thiết bị được mượn" });
                 }
+                ModelState.AddModelError("", "Phải có ít nhất một thiết bị được mượn");
                 var thietBis = await _thietBiService.LayTatCaThietBi();
                 ViewBag.ThietBis = thietBis;
                 return View(request);
@@ -97,9 +131,9 @@ namespace WEB.Controllers
             {
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
-                    return Json(new { success = false, message = "Có lỗi xảy ra khi thêm phiếu mượn. Vui lòng thử lại." });
+                    return Json(new { success = false, message = ex.Message });
                 }
-                ModelState.AddModelError("", "Có lỗi xảy ra khi thêm phiếu mượn. Vui lòng thử lại.");
+                ModelState.AddModelError("", ex.Message);
                 var thietBis = await _thietBiService.LayTatCaThietBi();
                 ViewBag.ThietBis = thietBis;
                 return View(request);

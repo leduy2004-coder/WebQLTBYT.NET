@@ -30,7 +30,7 @@ namespace API.Data
         [ForeignKey("MaTB")]
         public virtual ThietBi ThietBi { get; set; }
 
-        //[JsonIgnore]
+        [JsonIgnore]
         [ForeignKey("MaPhieuMuon")]
         public virtual PhieuMuon PhieuMuon { get; set; }
     }
