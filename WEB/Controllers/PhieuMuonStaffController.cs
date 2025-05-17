@@ -19,7 +19,7 @@ namespace WEB.Controllers
             _thietBiService = thietBiService;
         }
 
-        public async Task<IActionResult> Index(int? maPM)
+        public async Task<IActionResult> Index(int? maPM, bool? tinhTrang)
         {
             var userId = User.Identity.Name; // Lấy ID của user đang đăng nhập
             var allPhieuMuon = await _phieuMuonService.LayPhieuMuon();
@@ -32,6 +32,13 @@ namespace WEB.Controllers
             {
                 phieuMuonList = phieuMuonList.Where(pm => pm.MaPhieuMuon == maPM);
                 ViewBag.MaPMFilter = maPM;
+            }
+
+            // Lọc theo tình trạng duyệt nếu có
+            if (tinhTrang.HasValue)
+            {
+                phieuMuonList = phieuMuonList.Where(pm => pm.TinhTrang == tinhTrang.Value);
+                ViewBag.TinhTrangFilter = tinhTrang;
             }
 
             return View(phieuMuonList.ToList());

@@ -18,11 +18,32 @@
             <!-- Search Form -->
             <div class="mb-4">
                 <form method="get" asp-action="Index" asp-controller="PhieuMuonStaff" class="d-flex align-items-center">
-                    <div class="input-group w-50">
-                        <input type="number" class="form-control me-2" name="maPM" placeholder="Tìm theo Mã Phiếu Mượn" value="@ViewBag.MaPMFilter">
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Tìm kiếm</button>
+                    <div class="input-group me-2" style="width: 300px;">
+                        <input type="number" class="form-control" name="maPM" placeholder="Tìm theo Mã Phiếu Mượn" value="@ViewBag.MaPMFilter">
                     </div>
-                    @if (ViewBag.MaPMFilter != null)
+                    <div class="input-group me-2" style="width: 200px;">
+                        <select class="form-select" name="tinhTrang">
+                            <option value="">-- Tất cả trạng thái --</option>
+                            @if (ViewBag.TinhTrangFilter == true)
+                            {
+                                <option value="true" selected>Đã duyệt</option>
+                            }
+                            else
+                            {
+                                <option value="true">Đã duyệt</option>
+                            }
+                            @if (ViewBag.TinhTrangFilter == false)
+                            {
+                                <option value="false" selected>Chưa duyệt</option>
+                            }
+                            else
+                            {
+                                <option value="false">Chưa duyệt</option>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Tìm kiếm</button>
+                    @if (ViewBag.MaPMFilter != null || ViewBag.TinhTrangFilter != null)
                     {
                         <a href="@Url.Action("Index", "PhieuMuonStaff")" class="btn btn-secondary ms-2">Xóa bộ lọc</a>
                     }
