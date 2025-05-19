@@ -10,5 +10,6 @@ namespace API.Model
     public interface ICTPhieuTraRepository
     {
         Task<IEnumerable<ChiTietPhieuTra>> LayCTPTTheoMaPT(int maPT);
+        Task<ChiTietPhieuTra> ThemCTPhieuTra(CTPhieuTraRequest chiTietPhieuTra);
     }
 }

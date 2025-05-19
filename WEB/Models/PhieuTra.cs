@@ -7,7 +7,6 @@ namespace WEB.Models
 
         public int MaPhieuTra { get; set; }
 
-
         public string MaNguoiGui { get; set; }
 
         public string? MaNguoiDuyet { get; set; }

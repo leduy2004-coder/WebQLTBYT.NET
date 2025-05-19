@@ -1,5 +1,318 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model WEB.Models.Response.ListPhieuMuonTraResponse
 @{
+    ViewData["Title"] = "Thêm Phiếu Trả";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+<div class="container-fluid my-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-dark">Thêm Phiếu Trả</h2>
+        <a href="@Url.Action("Index", "PhieuTra")" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <!-- Form -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form id="phieuNhapForm" asp-action="Create" asp-controller="PhieuTra" method="post">
+                <h5 class="card-title mb-4">Chi Tiết Phiếu Trả</h5>
+                <table class="table table-bordered table-hover align-middle" id="chiTietTable">
+                    <thead class="table-dark text-uppercase">
+                        <tr>
+                            <th>Mã Thiết Bị</th>
+                            <th>Tên Thiết Bị</th>
+                            <th>Số Lượng Mượn</th>
+                            <th>Số Lượng Trả</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="chiTietTableBody"></tbody>
+                </table>
+
+                <div id="hiddenInputs"></div>
+
+                <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#thietBiModal">
+                    <i class="fas fa-plus"></i> Thêm Thiết Bị
+                </button>
+                <button type="submit" class="btn btn-primary mb-3 float-end" id="submitForm">Kết Thúc</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal chọn thiết bị -->
+<div class="modal fade" id="thietBiModal" tabindex="-1" aria-labelledby="thietBiModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content rounded-3">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Chọn Thiết Bị</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="form-control mb-3" id="searchThietBi" placeholder="Tìm kiếm theo tên thiết bị...">
+                <table class="table table-hover" id="thietBiTable">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th>Mã Chi Tiết</th>
+                            <th>Mã Thiết Bị</th>
+                            <th>Tên Thiết Bị</th>
+                            <th>Số Lượng Mượn</th>
+                            <th>Mục Đích</th>
+                            <th>Ngày Mượn</th>
+                            <th>Dự Kiến Trả</th>
+                            <th>Khẩn Cấp</th>
+                            <th>Tình Trạng</th>
+                        </tr>
+                    </thead>
+                    <tbody id="thietBiTableBody">
+                        @if (Model.ChiTietPhieuMuons == null || !Model.ChiTietPhieuMuons.Any())
+                        {
+                            <tr>
+                                <td colspan="9" class="text-center">Không có thông tin.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var item in Model.ChiTietPhieuMuons)
+                            {
+                                <tr class="thiet-bi-row"
+                                    data-ma="@item.MaTB"
+                                    data-ten="@item.ThietBi?.TenThietBi"
+                                    data-so-luong-tong="@item.SoLuongTBMuon"
+                                    data-so-luong-con="@item.SoLuongTBMuon">
+                                    <td>@item.MaCT</td>
+                                    <td>@item.MaTB</td>
+                                    <td>@item.ThietBi?.TenThietBi</td>
+                                    <td>@item.SoLuongTBMuon</td>
+                                    <td>@item.MucDich</td>
+                                    <td>@item.NgayMuon.ToString("dd/MM/yyyy")</td>
+                                    <td>@item.NgayDuKienTra.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @if (item.TinhCanThiet)
+                                        {
+                                            <span class="badge bg-danger">Khẩn cấp</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Bình thường</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @switch (item.TinhTrang)
+                                        {
+                                            case 1:
+                                                <span class="badge bg-warning text-dark">Chưa duyệt</span>
+                                                break;
+                                            case 2:
+                                                <span class="badge bg-success">Đã chấp nhận</span>
+                                                break;
+                                            case 3:
+                                                <span class="badge bg-danger">Từ chối</span>
+                                                break;
+                                            default:
+                                                <span class="badge bg-secondary">Không xác định</span>
+                                                break;
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+
+                <!-- Chọn số lượng -->
+                <div id="thietBiDetails" class="mt-4" style="display: none;">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Mã Thiết Bị</label>
+                            <input type="text" id="selectedMaThietBi" class="form-control" readonly />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tên Thiết Bị</label>
+                            <input type="text" id="selectedTenThietBi" class="form-control" readonly />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số Lượng Mượn</label>
+                            <input type="text" id="selectedSoLuongTong" class="form-control" readonly />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số Lượng Trả</label>
+                            <input type="number" id="soLuong" class="form-control" min="1" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button id="hoanTatBtn" class="btn btn-primary" disabled>Hoàn tất</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal cảnh báo trùng -->
+<div class="modal fade" id="duplicateAlertModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-3">
+            <div class="modal-header bg-danger text-white border-0">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i> Cảnh Báo</h5>
+                <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <p id="alertMessage" class="mb-0 fs-6 text-dark">Thiết bị đã được chọn. Vui lòng chọn thiết bị khác.</p>
+            </div>
+            <div class="modal-footer justify-content-center border-0">
+                <button class="btn btn-primary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f1f1f1;
+        cursor: pointer;
+    }
+
+    .thiet-bi-row.table-active {
+        background-color: #d9edf7 !important;
+    }
+
+    .card {
+        border: none;
+        border-radius: 12px;
+    }
+
+    .card-title {
+        font-weight: bold;
+        color: #2A5C8E;
+    }
+
+    .btn-primary {
+        background-color: #2A5C8E;
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #1A3C5E;
+        }
+
+    .btn-success {
+        background-color: #28a745;
+        border: none;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+    .form-label {
+        font-weight: 500;
+        color: #333;
+    }
+</style>
+
+<script>
+    let chiTietList = [];
+
+    document.querySelectorAll('.thiet-bi-row').forEach(row => {
+        row.addEventListener('click', function () {
+            document.querySelectorAll('.thiet-bi-row').forEach(r => r.classList.remove('table-active'));
+            this.classList.add('table-active');
+
+            document.getElementById('selectedMaThietBi').value = this.dataset.ma;
+            document.getElementById('selectedTenThietBi').value = this.dataset.ten;
+            document.getElementById('selectedSoLuongTong').value = this.dataset.soLuongTong;
+            document.getElementById('soLuong').value = "";
+            document.getElementById('thietBiDetails').style.display = "block";
+            document.getElementById('hoanTatBtn').disabled = false;
+        });
+    });
+
+    document.getElementById('hoanTatBtn').addEventListener('click', function () {
+        const ma = document.getElementById('selectedMaThietBi').value;
+        const ten = document.getElementById('selectedTenThietBi').value;
+        const tong = parseInt(document.getElementById('selectedSoLuongTong').value);
+        const soLuong = parseInt(document.getElementById('soLuong').value);
+
+        if (!ma || isNaN(soLuong) || soLuong <= 0) return;
+
+        // Kiểm tra nếu số lượng trả > số lượng mượn
+        if (soLuong > tong) {
+            const modal = new bootstrap.Modal(document.getElementById('duplicateAlertModal'));
+            document.getElementById('alertMessage').textContent = 'Số lượng trả không được lớn hơn số lượng đã mượn.';
+            modal.show();
+            return;
+        }
+
+        if (chiTietList.some(x => x.ma === ma)) {
+            const modal = new bootstrap.Modal(document.getElementById('duplicateAlertModal'));
+            document.getElementById('alertMessage').textContent = 'Thiết bị đã được chọn.';
+            modal.show();
+            return;
+        }
+
+        chiTietList.push({ ma, ten, tong, soLuong });
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${ma}</td>
+            <td>${ten}</td>
+            <td>${tong}</td>
+            <td>${soLuong}</td>
+            <td><button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
+        `;
+        row.querySelector('button').addEventListener('click', () => {
+            row.remove();
+            chiTietList = chiTietList.filter(x => x.ma !== ma);
+            updateHiddenInputs();
+        });
+        document.getElementById('chiTietTableBody').appendChild(row);
+
+        updateHiddenInputs();
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById('thietBiModal'));
+        modal.hide();
+        document.getElementById('thietBiDetails').style.display = "none";
+        document.getElementById('hoanTatBtn').disabled = true;
+    });
+
+    function updateHiddenInputs() {
+        const hidden = document.getElementById('hiddenInputs');
+        hidden.innerHTML = '';
+        chiTietList.forEach((item, index) => {
+            hidden.innerHTML += `
+                    <input type="hidden" name="ChiTietPhieuTras[${index}].MaTB" value="${item.ma}">
+                    <input type="hidden" name="ChiTietPhieuTras[${index}].SoLuongTBTra" value="${item.soLuong}">
+                `;
+        });
+    }
+
+    document.getElementById('submitForm').addEventListener('click', e => {
+        if (chiTietList.length === 0) {
+            e.preventDefault();
+            const modal = new bootstrap.Modal(document.getElementById('duplicateAlertModal'));
+            document.getElementById('alertMessage').textContent = 'Vui lòng thêm ít nhất một thiết bị.';
+            modal.show();
+        }
+    });
+
+    document.getElementById('searchThietBi').addEventListener('input', e => {
+        const search = e.target.value.toLowerCase();
+        document.querySelectorAll('.thiet-bi-row').forEach(row => {
+            const ten = row.dataset.ten?.toLowerCase() || "";
+            row.style.display = ten.includes(search) ? "" : "none";
+        });
+    });
+</script>

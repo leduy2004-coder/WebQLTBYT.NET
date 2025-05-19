@@ -58,5 +58,21 @@ namespace API.Model.Impl
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task<PhieuTra> ThemPhieuTra(PhieuTraRequest phieuTra)
+        {
+            var tbResponse = phieuTra.Adapt<PhieuTra>();
+            try
+            {
+                await _context.PhieuTra.AddAsync(tbResponse);
+
+                await _context.SaveChangesAsync();
+
+                return tbResponse;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Có lỗi xảy ra khi thêm.", ex);
+            }
+        }
     }
 }

@@ -21,5 +21,22 @@ namespace API.Model.Impl
                                 .Include(p => p.ThietBi)
                                 .ToListAsync();
         }
+        public async Task<ChiTietPhieuTra> ThemCTPhieuTra(CTPhieuTraRequest chiTietPhieuTra)
+        {
+            var tbResponse = chiTietPhieuTra.Adapt<ChiTietPhieuTra>();
+            try
+            {
+                await _context.ChiTietPhieuTra.AddAsync(tbResponse);
+
+                await _context.SaveChangesAsync();
+
+                return tbResponse;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Có lỗi xảy ra khi thêm phim.", ex);
+            }
+        }
     }
+
 }

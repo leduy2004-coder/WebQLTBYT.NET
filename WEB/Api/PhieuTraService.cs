@@ -3,6 +3,7 @@
 
 using Web.Api;
 using WEB.Models;
+using WEB.Models.Request;
 
 
 namespace WEB.Api
@@ -68,6 +69,25 @@ namespace WEB.Api
             bool deleteSuccess = await _apiService.DeleteDataAsync(url);
 
             return deleteSuccess;
+        }
+
+        public async Task<PhieuTra> LuuPhieuTra(string userId)
+        {
+            var pt = new PhieuTraRequest
+            {
+                MaPhieuTra = 0, // hoặc bỏ qua nếu backend tự tạo
+                MaNguoiGui = userId,
+                MaNguoiDuyet = null,
+                NgayTra = DateTime.Now,
+                TinhTrang = false
+            };
+
+            return await _apiService.PostDataAsync<PhieuTra>("api/PhieuTra/ThemPhieuTra", pt);
+        }
+        public async Task<ChiTietPhieuTra> LuuCTPhieuTra(ChiTietPhieuTra chiTiet)
+        {
+
+            return await _apiService.PostDataAsync<ChiTietPhieuTra>("api/PhieuTra/ThemCTPhieuTra", chiTiet);
         }
 
     }

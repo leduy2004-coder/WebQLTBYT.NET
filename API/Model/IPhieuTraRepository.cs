@@ -14,5 +14,6 @@ namespace API.Model
 
         Task<bool> XoaPhieuTra(int maPT);
         Task<bool> DuyetPhieuTra(DuyetPhieuTraRequest request);
+        Task<PhieuTra> ThemPhieuTra(PhieuTraRequest phieuTra);
     }
 }
