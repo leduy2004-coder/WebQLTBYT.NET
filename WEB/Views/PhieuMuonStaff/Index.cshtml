@@ -92,6 +92,9 @@
                                         </button>
                                         @if (!item.TinhTrang)
                                         {
+                                            <a href="@Url.Action("Edit", "PhieuMuonStaff", new { maPM = item.MaPhieuMuon })" class="btn btn-warning btn-sm">
+                                                <i class="fas fa-edit"></i> Sửa
+                                            </a>
                                             <button type="button" class="btn btn-danger btn-sm" onclick="deletePhieuMuon(@item.MaPhieuMuon)">
                                                 <i class="fas fa-trash"></i> Xóa
                                             </button>

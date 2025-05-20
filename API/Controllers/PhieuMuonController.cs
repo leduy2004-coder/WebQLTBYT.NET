@@ -115,5 +115,23 @@ namespace API.Controllers
                 return StatusCode(500, "Lỗi khi xóa phiếu mượn.");
             }
         }
+
+        [HttpPut("CapNhatPhieuMuon/{maPM}")]
+        public async Task<IActionResult> CapNhatPhieuMuon(int maPM, [FromBody] CapNhatPhieuMuonRequest request)
+        {
+            try
+            {
+                var result = await phieuMuonRepository.CapNhatPhieuMuon(maPM, request);
+                if (result)
+                    return Ok(true);
+                else
+                    return NotFound(false);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return StatusCode(500, "Lỗi khi cập nhật phiếu mượn.");
+            }
+        }
     }
 }

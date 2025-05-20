@@ -106,5 +106,46 @@ namespace API.Model.Impl
                 throw;
             }
         }
+
+        public async Task<bool> CapNhatPhieuMuon(int maPM, CapNhatPhieuMuonRequest request)
+        {
+            try
+            {
+                var phieuMuon = await _context.PhieuMuon.FindAsync(maPM);
+                if (phieuMuon == null)
+                    return false;
+
+                // Cập nhật thông tin phiếu mượn
+                phieuMuon.MaNguoiGui = request.MaNguoiGui;
+
+                // Xóa các chi tiết phiếu mượn cũ
+                var chiTietCu = await _context.ChiTietPhieuMuon.Where(ct => ct.MaPhieuMuon == maPM).ToListAsync();
+                _context.ChiTietPhieuMuon.RemoveRange(chiTietCu);
+
+                // Thêm các chi tiết phiếu mượn mới
+                foreach (var chiTiet in request.ChiTietPhieuMuons)
+                {
+                    var chiTietMoi = new ChiTietPhieuMuon
+                    {
+                        MaPhieuMuon = maPM,
+                        MaTB = chiTiet.MaTB,
+                        TinhCanThiet = chiTiet.TinhCanThiet,
+                        MucDich = chiTiet.MucDich,
+                        NgayMuon = chiTiet.NgayMuon,
+                        NgayDuKienTra = chiTiet.NgayDuKienTra,
+                        SoLuongTBMuon = chiTiet.SoLuongTBMuon,
+                        TinhTrang = 1 // Chưa duyệt
+                    };
+                    _context.ChiTietPhieuMuon.Add(chiTietMoi);
+                }
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

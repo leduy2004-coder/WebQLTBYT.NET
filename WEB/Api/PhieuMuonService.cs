@@ -51,7 +51,18 @@ namespace WEB.Api
             return response != null;
         }
 
-        
+        public async Task<bool> CapNhatPhieuMuon(int maPM, CapNhatPhieuMuonRequest request)
+        {
+            try
+            {
+                var response = await _apiService.PutDataAsync<object>($"/api/PhieuMuon/CapNhatPhieuMuon/{maPM}", request);
+                return response != null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi khi cập nhật phiếu mượn: {ex.Message}");
+            }
+        }
 
         public async Task<bool> XoaPhieuMuon(int maPM)
         {

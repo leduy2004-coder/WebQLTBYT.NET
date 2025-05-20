@@ -176,5 +176,115 @@ namespace WEB.Controllers
                 return Json(new { success = false, message = "Có lỗi xảy ra khi xóa phiếu mượn. Vui lòng thử lại." });
             }
         }
+
+        public async Task<IActionResult> Edit(int maPM)
+        {
+            var userId = User.Identity.Name;
+            var phieuMuon = await _phieuMuonService.LayPMTheoMa(maPM);
+
+            // Kiểm tra xem phiếu mượn có thuộc về staff hiện tại không
+            if (phieuMuon == null || phieuMuon.MaNguoiGui != userId)
+            {
+                return RedirectToAction("Index");
+            }
+
+            // Kiểm tra xem phiếu mượn đã được duyệt chưa
+            if (phieuMuon.TinhTrang)
+            {
+                TempData["Error"] = "Không thể sửa phiếu mượn đã được duyệt.";
+                return RedirectToAction("Index");
+            }
+
+            var chiTietPhieuMuonList = await _phieuMuonService.LayCTPhieuMuonTheoPM(maPM);
+            var thietBis = await _thietBiService.LayTatCaThietBi();
+            ViewBag.ThietBis = thietBis;
+
+            var model = new CapNhatPhieuMuonRequest
+            {
+                MaNguoiGui = phieuMuon.MaNguoiGui,
+                ChiTietPhieuMuons = chiTietPhieuMuonList.Select(ct => new ChiTietPhieuMuonRequest
+                {
+                    MaTB = ct.MaTB,
+                    TinhCanThiet = ct.TinhCanThiet,
+                    MucDich = ct.MucDich,
+                    NgayMuon = ct.NgayMuon,
+                    NgayDuKienTra = ct.NgayDuKienTra,
+                    SoLuongTBMuon = ct.SoLuongTBMuon
+                }).ToList()
+            };
+
+            ViewBag.MaPM = maPM;
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(int maPM, CapNhatPhieuMuonRequest request)
+        {
+            // Đảm bảo luôn có MaNguoiGui
+            if (string.IsNullOrEmpty(request.MaNguoiGui))
+            {
+                request.MaNguoiGui = User.Identity.Name;
+            }
+
+            // Validate model
+            if (!ModelState.IsValid)
+            {
+                var errorMessages = new StringBuilder();
+                foreach (var modelState in ModelState.Values)
+                {
+                    foreach (var error in modelState.Errors)
+                    {
+                        errorMessages.AppendLine(error.ErrorMessage);
+                    }
+                }
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = errorMessages.ToString() });
+                }
+
+                var thietBis = await _thietBiService.LayTatCaThietBi();
+                ViewBag.ThietBis = thietBis;
+                ViewBag.MaPM = maPM;
+                return View(request);
+            }
+
+            // Validate business rules
+            if (request.ChiTietPhieuMuons == null || !request.ChiTietPhieuMuons.Any())
+            {
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = "Phải có ít nhất một thiết bị được mượn" });
+                }
+                ModelState.AddModelError("", "Phải có ít nhất một thiết bị được mượn");
+                var thietBis = await _thietBiService.LayTatCaThietBi();
+                ViewBag.ThietBis = thietBis;
+                ViewBag.MaPM = maPM;
+                return View(request);
+            }
+
+            try
+            {
+                var result = await _phieuMuonService.CapNhatPhieuMuon(maPM, request);
+                
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = true, message = "Cập nhật phiếu mượn thành công" });
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = ex.Message });
+                }
+                ModelState.AddModelError("", ex.Message);
+                var thietBis = await _thietBiService.LayTatCaThietBi();
+                ViewBag.ThietBis = thietBis;
+                ViewBag.MaPM = maPM;
+                return View(request);
+            }
+        }
     }
 } 
