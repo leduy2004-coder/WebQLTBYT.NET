@@ -17,7 +17,7 @@
 
             <form method="post" asp-action="Create" asp-controller="PhieuMuonStaff">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                
+
                 <!-- Hidden field for MaNguoiGui -->
                 <input type="hidden" asp-for="MaNguoiGui" />
 
@@ -32,7 +32,7 @@
                                         <option value="">-- Chọn thiết bị --</option>
                                         @foreach (var tb in ViewBag.ThietBis)
                                         {
-                                            <option value="@tb.MaThietBi">@tb.TenThietBi (@tb.SoLuongCon có sẵn)</option>
+                                            <option value="@tb.MaThietBi" data-so-luong-tong="@tb.SoLuongTong">@tb.TenThietBi (@tb.SoLuongTong thiết bị)</option>
                                         }
                                     </select>
                                     <span class="text-danger field-validation-valid" data-valmsg-for="ChiTietPhieuMuons[0].MaTB" data-valmsg-replace="true"></span>
@@ -102,8 +102,13 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <!-- Thêm SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         $(document).ready(function () {
             let chiTietCount = 1;
@@ -116,12 +121,50 @@
                 }, 5000);
             }
 
+            // Hàm kiểm tra số lượng mượn so với số lượng tổng
+            function validateSoLuong(item) {
+                const maTB = item.find('select[name$=".MaTB"]').val();
+                const soLuongTBMuon = parseInt(item.find('input[name$=".SoLuongTBMuon"]').val()) || 0;
+                const selectedOption = item.find('select[name$=".MaTB"] option:selected');
+                const soLuongTong = parseInt(selectedOption.data('so-luong-tong')) || 0;
+
+                if (maTB && soLuongTBMuon > soLuongTong) {
+                    Swal.fire({
+                        title: 'Lỗi!',
+                        text: `Số lượng mượn (${soLuongTBMuon}) vượt quá số lượng thiết bị có sẵn (${soLuongTong}).`,
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#dc3545'
+                    });
+                    return false;
+                }
+                return true;
+            }
+
+            // Kiểm tra số lượng khi thay đổi thiết bị hoặc số lượng mượn
+            $(document).on('change', 'select[name$=".MaTB"], input[name$=".SoLuongTBMuon"]', function () {
+                const item = $(this).closest('.chi-tiet-item');
+                validateSoLuong(item);
+            });
+
             // Form submission handling
             $('form').on('submit', function (e) {
                 e.preventDefault(); // Ngăn form submit mặc định
 
                 // Hide any existing error messages
                 $('#errorAlert').hide();
+
+                // Kiểm tra tất cả các chi tiết trước khi submit
+                let isValid = true;
+                $('.chi-tiet-item').each(function () {
+                    if (!validateSoLuong($(this))) {
+                        isValid = false;
+                    }
+                });
+
+                if (!isValid) {
+                    return;
+                }
 
                 if ($(this).valid()) {
                     const formData = $(this).serialize();
@@ -152,7 +195,7 @@
                         },
                         error: function (xhr, status, error) {
                             let errorMessage = 'Có lỗi xảy ra khi tạo phiếu mượn.';
-                            
+
                             // Try to get detailed error message
                             if (xhr.responseJSON) {
                                 if (xhr.responseJSON.message) {
@@ -181,15 +224,21 @@
             });
 
             $('#themChiTiet').click(function () {
+                // Kiểm tra chi tiết hiện tại trước khi thêm mới
+                const currentItem = $('.chi-tiet-item').last();
+                if (!validateSoLuong(currentItem)) {
+                    return;
+                }
+
                 const template = $('.chi-tiet-item').first().clone();
-                
+
                 // Cập nhật các name attribute với index mới
                 template.find('select, input, textarea').each(function () {
                     const name = $(this).attr('name');
                     if (name) {
                         const newName = name.replace('[0]', `[${chiTietCount}]`);
                         $(this).attr('name', newName);
-                        
+
                         // Update validation attributes
                         const validationSpan = template.find(`[data-valmsg-for="${name}"]`);
                         if (validationSpan.length) {
@@ -217,6 +266,10 @@
 
                 // Re-parse validation on new elements
                 $.validator.unobtrusive.parse(template);
+
+                // Set default dates for new item
+                template.find('input[name$=".NgayMuon"]').val(new Date().toISOString().split('T')[0]);
+                template.find('input[name$=".NgayDuKienTra"]').val(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
             });
 
             // Set default dates
@@ -224,4 +277,4 @@
             $('input[name$=".NgayDuKienTra"]').val(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
         });
     </script>
-} 
+}

@@ -31,6 +31,10 @@ builder.Services.AddTransient<IPhieuMuonRepository, PhieuMuonRepository>();
 builder.Services.AddTransient<IPhieuTraRepository, PhieuTraRepository>();
 builder.Services.AddTransient<IThongKeRepository, ThongKeRepository>();
 
+// Thêm service kiểm tra phiếu mượn
+builder.Services.AddTransient<IKiemTraPhieuMuonService, KiemTraPhieuMuonService>();
+builder.Services.AddHostedService<PhieuMuonBackgroundService>();
+
 // Cấu hình JSON Serialization
 builder.Services.AddControllers().AddJsonOptions(options =>
 {

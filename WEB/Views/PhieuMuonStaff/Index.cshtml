@@ -125,6 +125,9 @@
 </div>
 
 @section Scripts {
+    <!-- Thêm SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         function showChiTiet(maPM) {
             $.get('@Url.Action("ChiTietPhieuMuon", "PhieuMuonStaff")', { maPM: maPM }, function (data) {
@@ -134,24 +137,55 @@
         }
 
         function deletePhieuMuon(maPM) {
-            if (confirm('Bạn có chắc chắn muốn xóa phiếu mượn này không?')) {
-                $.ajax({
-                    url: '@Url.Action("Delete", "PhieuMuonStaff")',
-                    type: 'POST',
-                    data: { maPM: maPM },
-                    success: function (response) {
-                        if (response.success) {
-                            alert(response.message);
-                            location.reload();
-                        } else {
-                            alert(response.message);
+            Swal.fire({
+                title: 'Xác nhận xóa phiếu mượn',
+                text: 'Bạn có chắc chắn muốn xóa phiếu mượn này không? Hành động này không thể hoàn tác.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("Delete", "PhieuMuonStaff")',
+                        type: 'POST',
+                        data: { maPM: maPM },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: 'Đã xóa!',
+                                    text: response.message || 'Phiếu mượn đã được xóa thành công.',
+                                    icon: 'success',
+                                    confirmButtonText: 'OK',
+                                    confirmButtonColor: '#28a745'
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Lỗi!',
+                                    text: response.message || 'Không thể xóa phiếu mượn.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK',
+                                    confirmButtonColor: '#dc3545'
+                                });
+                            }
+                        },
+                        error: function () {
+                            Swal.fire({
+                                title: 'Lỗi hệ thống!',
+                                text: 'Đã xảy ra lỗi khi xóa phiếu mượn. Vui lòng thử lại sau.',
+                                icon: 'error',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#dc3545'
+                            });
                         }
-                    },
-                    error: function () {
-                        alert('Có lỗi xảy ra khi xóa phiếu mượn.');
-                    }
-                });
-            }
+                    });
+                }
+            });
         }
     </script>
-} 
+}

@@ -26,5 +26,7 @@ namespace API.Data
 
         [JsonIgnore]
         public virtual ICollection<ChiTietPhieuMuon> ChiTietPhieuMuons { get; set; }
+
+        public DateTime NgayTao { get; set; }
     }
 }

@@ -202,15 +202,17 @@ namespace WEB.Controllers
             var model = new CapNhatPhieuMuonRequest
             {
                 MaNguoiGui = phieuMuon.MaNguoiGui,
-                ChiTietPhieuMuons = chiTietPhieuMuonList.Select(ct => new ChiTietPhieuMuonRequest
-                {
-                    MaTB = ct.MaTB,
-                    TinhCanThiet = ct.TinhCanThiet,
-                    MucDich = ct.MucDich,
-                    NgayMuon = ct.NgayMuon,
-                    NgayDuKienTra = ct.NgayDuKienTra,
-                    SoLuongTBMuon = ct.SoLuongTBMuon
-                }).ToList()
+                ChiTietPhieuMuons = chiTietPhieuMuonList
+                    .Where(ct => ct.TinhTrang == 1)
+                    .Select(ct => new ChiTietPhieuMuonRequest
+                    {
+                        MaTB = ct.MaTB,
+                        TinhCanThiet = ct.TinhCanThiet,
+                        MucDich = ct.MucDich,
+                        NgayMuon = ct.NgayMuon,
+                        NgayDuKienTra = ct.NgayDuKienTra,
+                        SoLuongTBMuon = ct.SoLuongTBMuon
+                    }).ToList()
             };
 
             ViewBag.MaPM = maPM;

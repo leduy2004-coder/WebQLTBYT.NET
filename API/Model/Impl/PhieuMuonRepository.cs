@@ -40,7 +40,8 @@ namespace API.Model.Impl
                 var phieuMuon = new PhieuMuon
                 {
                     MaNguoiGui = request.MaNguoiGui,
-                    TinhTrang = false // Chưa duyệt
+                    TinhTrang = false, // Chưa duyệt
+                    NgayTao = DateTime.Now
                 };
 
                 await _context.PhieuMuon.AddAsync(phieuMuon);
