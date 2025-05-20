@@ -1,9 +1,7 @@
-
-
 using API.Model;
 using API.Model.Impl;
 using Microsoft.EntityFrameworkCore;
-
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 // Cấu hình CORS
@@ -21,7 +19,6 @@ builder.Services.AddDbContextPool<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection")));
 
 // Thêm các repository với Dependency Injection
-
 builder.Services.AddTransient<INguoiDungRepository, NguoiDungRepository>();
 builder.Services.AddTransient<IThietBiRepository, ThietBiRepository>();
 
@@ -34,12 +31,14 @@ builder.Services.AddTransient<IPhieuMuonRepository, PhieuMuonRepository>();
 builder.Services.AddTransient<IPhieuTraRepository, PhieuTraRepository>();
 builder.Services.AddTransient<IThongKeRepository, ThongKeRepository>();
 
-
-//  Thêm Controllers
-builder.Services.AddControllers();
+// Cấu hình JSON Serialization
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.WriteIndented = true;
+});
 
 builder.Services.AddMemoryCache();
-
 
 builder.Services.AddSwaggerGen(c =>
 {

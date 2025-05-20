@@ -1,0 +1,215 @@
+@model WEB.Models.Request.CapNhatPhieuMuonRequest
+
+@{
+    ViewData["Title"] = "Sửa phiếu mượn";
+}
+
+<div class="container-fluid">
+    <h2 class="text-center mb-4">Sửa phiếu mượn</h2>
+
+    <form asp-action="Edit" method="post" id="editForm">
+        <input type="hidden" asp-for="MaNguoiGui" />
+        <input type="hidden" name="maPM" value="@ViewBag.MaPM" />
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div id="chiTietPhieuMuonContainer">
+                            @for (var i = 0; i < Model.ChiTietPhieuMuons.Count; i++)
+                            {
+                                <div class="chi-tiet-phieu-muon mb-4">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Thiết bị</label>
+                                                <select asp-for="@Model.ChiTietPhieuMuons[i].MaTB" class="form-control thiet-bi-select">
+                                                    <option value="">-- Chọn thiết bị --</option>
+                                                    @foreach (var tb in ViewBag.ThietBis)
+                                                    {
+                                                        var isSelected = Model.ChiTietPhieuMuons[i].MaTB == tb.MaThietBi;
+                                                        <option value="@tb.MaThietBi" selected="@isSelected">@tb.TenThietBi</option>
+                                                    }
+                                                </select>
+                                                <span asp-validation-for="@Model.ChiTietPhieuMuons[i].MaTB" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Số lượng mượn</label>
+                                                <input asp-for="@Model.ChiTietPhieuMuons[i].SoLuongTBMuon" class="form-control" type="number" min="1" />
+                                                <span asp-validation-for="@Model.ChiTietPhieuMuons[i].SoLuongTBMuon" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt-3">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Ngày mượn</label>
+                                                <input asp-for="@Model.ChiTietPhieuMuons[i].NgayMuon" class="form-control" type="date" />
+                                                <span asp-validation-for="@Model.ChiTietPhieuMuons[i].NgayMuon" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Ngày dự kiến trả</label>
+                                                <input asp-for="@Model.ChiTietPhieuMuons[i].NgayDuKienTra" class="form-control" type="date" />
+                                                <span asp-validation-for="@Model.ChiTietPhieuMuons[i].NgayDuKienTra" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt-3">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label>Mục đích mượn</label>
+                                                <textarea asp-for="@Model.ChiTietPhieuMuons[i].MucDich" class="form-control" rows="3"></textarea>
+                                                <span asp-validation-for="@Model.ChiTietPhieuMuons[i].MucDich" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt-3">
+                                        <div class="col-md-12">
+                                            <div class="form-check">
+                                                <input asp-for="@Model.ChiTietPhieuMuons[i].TinhCanThiet" class="form-check-input" type="checkbox" />
+                                                <label class="form-check-label">Tính cần thiết</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @if (i > 0)
+                                    {
+                                        <div class="row mt-3">
+                                            <div class="col-md-12">
+                                                <button type="button" class="btn btn-danger remove-chi-tiet">Xóa thiết bị này</button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <button type="button" class="btn btn-primary" id="addChiTiet">Thêm thiết bị</button>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-md-12 text-center">
+                                <button type="submit" class="btn btn-success">Cập nhật phiếu mượn</button>
+                                <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Thêm thiết bị mới
+            $("#addChiTiet").click(function () {
+                var index = $(".chi-tiet-phieu-muon").length;
+                var template = `
+                    <div class="chi-tiet-phieu-muon mb-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Thiết bị</label>
+                                    <select name="ChiTietPhieuMuons[${index}].MaTB" class="form-control thiet-bi-select">
+                                        <option value="">-- Chọn thiết bị --</option>
+                                        @foreach (var tb in ViewBag.ThietBis)
+                                        {
+                                            <option value="@tb.MaThietBi">@tb.TenThietBi</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Số lượng mượn</label>
+                                    <input name="ChiTietPhieuMuons[${index}].SoLuongTBMuon" class="form-control" type="number" min="1" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Ngày mượn</label>
+                                    <input name="ChiTietPhieuMuons[${index}].NgayMuon" class="form-control" type="date" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Ngày dự kiến trả</label>
+                                    <input name="ChiTietPhieuMuons[${index}].NgayDuKienTra" class="form-control" type="date" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Mục đích mượn</label>
+                                    <textarea name="ChiTietPhieuMuons[${index}].MucDich" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <div class="form-check">
+                                    <input name="ChiTietPhieuMuons[${index}].TinhCanThiet" class="form-check-input" type="checkbox" />
+                                    <label class="form-check-label">Tính cần thiết</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <button type="button" class="btn btn-danger remove-chi-tiet">Xóa thiết bị này</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $("#chiTietPhieuMuonContainer").append(template);
+            });
+
+            // Xóa thiết bị
+            $(document).on("click", ".remove-chi-tiet", function () {
+                $(this).closest(".chi-tiet-phieu-muon").remove();
+            });
+
+            // Validate form trước khi submit
+            $("#editForm").submit(function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var url = form.attr("action");
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: form.serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);
+                            window.location.href = '@Url.Action("Index")';
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Có lỗi xảy ra khi cập nhật phiếu mượn. Vui lòng thử lại.");
+                    }
+                });
+            });
+        });
+    </script>
+} 

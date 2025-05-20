@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace API.Data
 {
@@ -23,6 +24,7 @@ namespace API.Data
         [ForeignKey("MaNguoiDuyet")]
         public virtual NguoiDung? NguoiDuyet { get; set; }
 
+        [JsonIgnore]
         public virtual ICollection<ChiTietPhieuMuon> ChiTietPhieuMuons { get; set; }
     }
 }

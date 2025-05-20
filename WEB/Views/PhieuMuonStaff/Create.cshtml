@@ -1,0 +1,227 @@
+@model WEB.Models.Request.ThemPhieuMuonRequest
+
+@{
+    ViewData["Title"] = "Tạo Phiếu Mượn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid my-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Tạo Phiếu Mượn Mới</h5>
+
+            <!-- Alert for displaying errors -->
+            <div id="errorAlert" class="alert alert-danger" style="display: none;">
+                <span id="errorMessage"></span>
+            </div>
+
+            <form method="post" asp-action="Create" asp-controller="PhieuMuonStaff">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                
+                <!-- Hidden field for MaNguoiGui -->
+                <input type="hidden" asp-for="MaNguoiGui" />
+
+                <div id="chiTietContainer">
+                    <!-- Template cho chi tiết phiếu mượn -->
+                    <div class="chi-tiet-item border rounded p-3 mb-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Thiết Bị</label>
+                                    <select name="ChiTietPhieuMuons[0].MaTB" class="form-select" required>
+                                        <option value="">-- Chọn thiết bị --</option>
+                                        @foreach (var tb in ViewBag.ThietBis)
+                                        {
+                                            <option value="@tb.MaThietBi">@tb.TenThietBi (@tb.SoLuongCon có sẵn)</option>
+                                        }
+                                    </select>
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="ChiTietPhieuMuons[0].MaTB" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Số Lượng Mượn</label>
+                                    <input type="number" name="ChiTietPhieuMuons[0].SoLuongTBMuon" class="form-control" required min="1" />
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="ChiTietPhieuMuons[0].SoLuongTBMuon" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Ngày Mượn</label>
+                                    <input type="date" name="ChiTietPhieuMuons[0].NgayMuon" class="form-control" required />
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="ChiTietPhieuMuons[0].NgayMuon" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Ngày Dự Kiến Trả</label>
+                                    <input type="date" name="ChiTietPhieuMuons[0].NgayDuKienTra" class="form-control" required />
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="ChiTietPhieuMuons[0].NgayDuKienTra" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Mục Đích</label>
+                                    <textarea name="ChiTietPhieuMuons[0].MucDich" class="form-control" required rows="2" minlength="10" maxlength="500"></textarea>
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="ChiTietPhieuMuons[0].MucDich" data-valmsg-replace="true"></span>
+                                    <small class="form-text text-muted">Mục đích mượn phải từ 10 đến 500 ký tự</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" name="ChiTietPhieuMuons[0].TinhCanThiet" class="form-check-input" value="true" />
+                                    <label class="form-check-label">Tình trạng khẩn cấp</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <button type="button" id="themChiTiet" class="btn btn-outline-primary">
+                        <i class="fas fa-plus"></i> Thêm Thiết Bị
+                    </button>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Tạo Phiếu Mượn</button>
+                    <a href="@Url.Action("Index", "PhieuMuonStaff")" class="btn btn-secondary">Quay Lại</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function () {
+            let chiTietCount = 1;
+
+            function showError(message) {
+                $('#errorMessage').text(message);
+                $('#errorAlert').fadeIn();
+                setTimeout(function() {
+                    $('#errorAlert').fadeOut();
+                }, 5000);
+            }
+
+            // Form submission handling
+            $('form').on('submit', function (e) {
+                e.preventDefault(); // Ngăn form submit mặc định
+
+                // Hide any existing error messages
+                $('#errorAlert').hide();
+
+                if ($(this).valid()) {
+                    const formData = $(this).serialize();
+
+                    // Log form data to console for debugging
+                    console.log('Form Data:', formData);
+
+                    // Hiển thị loading
+                    const submitBtn = $(this).find('button[type="submit"]');
+                    const originalText = submitBtn.html();
+                    submitBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xử lý...');
+                    submitBtn.prop('disabled', true);
+
+                    // Gửi request bằng AJAX
+                    $.ajax({
+                        url: $(this).attr('action'),
+                        method: 'POST',
+                        data: formData,
+                        success: function (response) {
+                            if (response.success === false) {
+                                showError(response.message || 'Có lỗi xảy ra khi tạo phiếu mượn.');
+                                submitBtn.html(originalText);
+                                submitBtn.prop('disabled', false);
+                            } else {
+                                // Chuyển hướng về trang Index
+                                window.location.href = '@Url.Action("Index", "PhieuMuonStaff")';
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            let errorMessage = 'Có lỗi xảy ra khi tạo phiếu mượn.';
+                            
+                            // Try to get detailed error message
+                            if (xhr.responseJSON) {
+                                if (xhr.responseJSON.message) {
+                                    errorMessage = xhr.responseJSON.message;
+                                } else if (xhr.responseJSON.errors) {
+                                    errorMessage = Object.values(xhr.responseJSON.errors).flat().join('\n');
+                                }
+                            } else if (xhr.responseText) {
+                                try {
+                                    const response = JSON.parse(xhr.responseText);
+                                    if (response.message) {
+                                        errorMessage = response.message;
+                                    }
+                                } catch (e) {
+                                    // If can't parse JSON, use the raw response text
+                                    errorMessage = xhr.responseText;
+                                }
+                            }
+
+                            showError(errorMessage);
+                            submitBtn.html(originalText);
+                            submitBtn.prop('disabled', false);
+                        }
+                    });
+                }
+            });
+
+            $('#themChiTiet').click(function () {
+                const template = $('.chi-tiet-item').first().clone();
+                
+                // Cập nhật các name attribute với index mới
+                template.find('select, input, textarea').each(function () {
+                    const name = $(this).attr('name');
+                    if (name) {
+                        const newName = name.replace('[0]', `[${chiTietCount}]`);
+                        $(this).attr('name', newName);
+                        
+                        // Update validation attributes
+                        const validationSpan = template.find(`[data-valmsg-for="${name}"]`);
+                        if (validationSpan.length) {
+                            validationSpan.attr('data-valmsg-for', newName);
+                        }
+                    }
+                });
+
+                // Reset giá trị
+                template.find('select').val('');
+                template.find('input[type="number"]').val('');
+                template.find('input[type="date"]').val('');
+                template.find('textarea').val('');
+                template.find('input[type="checkbox"]').prop('checked', false);
+
+                // Thêm nút xóa
+                const deleteBtn = $('<button type="button" class="btn btn-danger btn-sm mt-2"><i class="fas fa-trash"></i> Xóa</button>');
+                deleteBtn.click(function () {
+                    $(this).closest('.chi-tiet-item').remove();
+                });
+                template.append(deleteBtn);
+
+                $('#chiTietContainer').append(template);
+                chiTietCount++;
+
+                // Re-parse validation on new elements
+                $.validator.unobtrusive.parse(template);
+            });
+
+            // Set default dates
+            $('input[name$=".NgayMuon"]').val(new Date().toISOString().split('T')[0]);
+            $('input[name$=".NgayDuKienTra"]').val(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+        });
+    </script>
+} 

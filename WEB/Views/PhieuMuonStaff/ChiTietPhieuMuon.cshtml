@@ -1,0 +1,102 @@
+@model WEB.Models.Response.ChiTietPhieuMuonResponse
+
+<div class="container">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <strong>Mã Phiếu Mượn:</strong> @Model.PhieuMuon.MaPhieuMuon
+        </div>
+        <div class="col-md-6">
+            <strong>Người Gửi:</strong> @(Model.PhieuMuon.NguoiGui?.HoTen ?? Model.PhieuMuon.MaNguoiGui)
+            @if (!string.IsNullOrEmpty(Model.PhieuMuon.NguoiGui?.Khoa))
+            {
+                <span class="text-muted">(@Model.PhieuMuon.NguoiGui.Khoa)</span>
+            }
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <strong>Người Duyệt:</strong> @(Model.PhieuMuon.NguoiDuyet?.HoTen ?? "Chưa duyệt")
+        </div>
+        <div class="col-md-6">
+            <strong>Tình Trạng:</strong>
+            @if (Model.PhieuMuon.TinhTrang)
+            {
+                <span class="badge bg-success">Đã duyệt</span>
+            }
+            else
+            {
+                <span class="badge bg-warning text-dark">Chưa duyệt</span>
+            }
+        </div>
+    </div>
+
+    <h6 class="mt-4">Chi Tiết Phiếu Mượn</h6>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Mã Chi Tiết</th>
+                    <th>Tên Thiết Bị</th>
+                    <th>Số Lượng Mượn</th>
+                    <th>Mục Đích</th>
+                    <th>Ngày Mượn</th>
+                    <th>Ngày Dự Kiến Trả</th>
+                    <th>Tình Cần Thiết</th>
+                    <th>Tình Trạng</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.ChiTietPhieuMuonList == null || !Model.ChiTietPhieuMuonList.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="text-center">Không có chi tiết phiếu mượn.</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var chiTiet in Model.ChiTietPhieuMuonList)
+                    {
+                        <tr>
+                            <td>@chiTiet.MaCT</td>
+                            <td>@chiTiet.ThietBi?.TenThietBi</td>
+                            <td>@chiTiet.SoLuongTBMuon</td>
+                            <td>@chiTiet.MucDich</td>
+                            <td>@chiTiet.NgayMuon.ToString("dd/MM/yyyy")</td>
+                            <td>@chiTiet.NgayDuKienTra.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                @if (chiTiet.TinhCanThiet)
+                                {
+                                    <span class="badge bg-danger">Khẩn cấp</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-info">Bình thường</span>
+                                }
+                            </td>
+                            <td>
+                                @{
+                                    var tinhTrangText = chiTiet.TinhTrang switch
+                                    {
+                                        1 => "Chưa duyệt",
+                                        2 => "Chấp nhận",
+                                        3 => "Từ chối",
+                                        _ => "Không xác định"
+                                    };
+
+                                    var tinhTrangClass = chiTiet.TinhTrang switch
+                                    {
+                                        1 => "bg-warning text-dark",
+                                        2 => "bg-success",
+                                        3 => "bg-danger",
+                                        _ => "bg-secondary"
+                                    };
+                                }
+                                <span class="badge @tinhTrangClass">@tinhTrangText</span>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div> 

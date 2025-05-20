@@ -1,11 +1,7 @@
-﻿
-
-
-using Web.Api;
+﻿using Web.Api;
 using WEB.Models;
 using WEB.Models.Request;
 using WEB.Models.Response;
-
 
 namespace WEB.Api
 {
@@ -55,6 +51,38 @@ namespace WEB.Api
         {
             var response = await _apiService.PostDataAsync<object>("/api/PhieuMuon/DuyetCTPhieuMuon", dto);
             return response != null;
+        }
+
+        public async Task<bool> ThemPhieuMuon(ThemPhieuMuonRequest request)
+        {
+            var response = await _apiService.PostDataAsync<object>("/api/PhieuMuon/ThemPhieuMuon", request);
+            return response != null;
+        }
+
+        public async Task<bool> CapNhatPhieuMuon(int maPM, CapNhatPhieuMuonRequest request)
+        {
+            try
+            {
+                var response = await _apiService.PutDataAsync<object>($"/api/PhieuMuon/CapNhatPhieuMuon/{maPM}", request);
+                return response != null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi khi cập nhật phiếu mượn: {ex.Message}");
+            }
+        }
+
+        public async Task<bool> XoaPhieuMuon(int maPM)
+        {
+            try
+            {
+                var response = await _apiService.DeleteDataAsync($"/api/PhieuMuon/XoaPhieuMuon/{maPM}");
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi khi xóa phiếu mượn: {ex.Message}");
+            }
         }
     }
 }

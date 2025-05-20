@@ -14,6 +14,8 @@ namespace WEB.Models.Response
 
         public bool TinhTrang { get; set; } = false; // 0: Không duyệt, 1: Đã duyệt
 
+        public DateTime? NgayTao { get; set; }
+
         public NguoiDungDto NguoiGui { get; set; }
 
         public NguoiDungDto NguoiDuyet { get; set; }
