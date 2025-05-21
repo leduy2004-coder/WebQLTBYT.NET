@@ -12,6 +12,7 @@ namespace API.Model
         Task<IEnumerable<ChiTietPhieuMuon>> LayCTPMTheoMaPM(int maPM);
 
         Task<IEnumerable<ChiTietPhieuMuon>> LayCTPMTheoTT(int TT);
+        Task<IEnumerable<ChiTietPhieuMuon>> LayCTPMTheoTinhTrangVaNguoiGui(int TT, string maNG);
         Task<bool> DuyetCTPhieuMuon(DuyetChiTietPhieuMuon dto);
     }
 }

@@ -78,7 +78,20 @@ namespace API.Controllers
                 return StatusCode(500, "Lỗi khi lấy dữ liệu.");
             }
         }
-
+        [HttpGet("LayCTPMTheoTinhTrangVaNguoiGui/{TT}/{maNG}")]
+        public async Task<IActionResult> LayCTPMTheoTinhTrangVaNguoiGui(int TT, string maNG)
+        {
+            try
+            {
+                var result = await cTPhieuMuonRepository.LayCTPMTheoTinhTrangVaNguoiGui(TT, maNG);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return StatusCode(500, "Lỗi khi lấy dữ liệu.");
+            }
+        }
 
         [HttpPost("DuyetCTPhieuMuon")]
         public async Task<IActionResult> DuyetCTPhieuMuon([FromBody] DuyetChiTietPhieuMuon dto)

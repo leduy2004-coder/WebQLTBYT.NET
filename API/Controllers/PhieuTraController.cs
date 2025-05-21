@@ -92,7 +92,7 @@ namespace API.Controllers
             }
         }
         [HttpDelete("{maPT}")]
-        public async Task<IActionResult> XoaPhieuNhap(int maPT)
+        public async Task<IActionResult> XoaPhieuTra(int maPT)
         {
             try
             {
@@ -133,6 +133,21 @@ namespace API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error creating data.");
+            }
+        }
+
+        [HttpGet("LayCTPTTheoTinhTrangVaNguoiGui/{TT}/{maNG}")]
+        public async Task<IActionResult> LayCTPTTheoTinhTrangVaNguoiGui(bool TT, string maNG)
+        {
+            try
+            {
+                var result = await cTPhieuTraRepository.LayCTPTTheoTinhTrangVaNguoiGui(TT, maNG);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return StatusCode(500, "Lỗi khi lấy dữ liệu.");
             }
         }
     }

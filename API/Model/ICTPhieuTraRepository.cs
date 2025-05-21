@@ -11,5 +11,6 @@ namespace API.Model
     {
         Task<IEnumerable<ChiTietPhieuTra>> LayCTPTTheoMaPT(int maPT);
         Task<ChiTietPhieuTra> ThemCTPhieuTra(CTPhieuTraRequest chiTietPhieuTra);
+        Task<IEnumerable<ChiTietPhieuTra>> LayCTPTTheoTinhTrangVaNguoiGui(bool TT, string maNG);
     }
 }

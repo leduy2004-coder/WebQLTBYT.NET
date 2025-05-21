@@ -78,5 +78,14 @@ namespace API.Model.Impl
                 throw;
             }
         }
+
+        public async Task<IEnumerable<ChiTietPhieuMuon>> LayCTPMTheoTinhTrangVaNguoiGui(int TT, string maNG)
+        {
+            return await _context.Set<ChiTietPhieuMuon>()
+              .Include(ct => ct.ThietBi)
+              .Include(ct => ct.PhieuMuon)
+              .Where(ct => ct.TinhTrang == TT && ct.PhieuMuon.MaNguoiGui == maNG)
+              .ToListAsync();
+        }
     }
 }

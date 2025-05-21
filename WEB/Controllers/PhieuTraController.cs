@@ -16,19 +16,24 @@ public class PhieuTraController : Controller
         this.phieuMuonService = phieuMuonService;
     }
 
-    public async Task<IActionResult> Index(string maPM)
+    public async Task<IActionResult> Index(string maCT)
     {
-        ViewBag.MaPTFilter = maPM;
-
-        var allCTPhieuMuonTT2 = await phieuMuonService.LayCTPhieuMuonTheoTT(2);
+        ViewBag.MaCTFilter = maCT;
+        var userId = HttpContext.Session.GetString("UserId");
+        var allCTPhieuMuonTT2 = await phieuMuonService.LayCTPhieuMuonTheoTTVaMaNG(2, userId);
         var allPhieuTra = await phieuTraService.LayPhieuTra();
-        var PhieutraDaDuyet = allPhieuTra.Where(pt => pt.TinhTrang == true).ToList();
-        var PhieutraChuaDuyet = allPhieuTra.Where(pt => pt.TinhTrang == false).ToList();
+        
+        var PhieutraDaDuyet = allPhieuTra
+            .Where(pt => pt.TinhTrang == true && pt.MaNguoiGui == userId)
+            .ToList();
+        var PhieutraChuaDuyet = allPhieuTra
+            .Where(pt => pt.TinhTrang == false && pt.MaNguoiGui == userId)
+            .ToList();
 
-        if (!string.IsNullOrEmpty(maPM) && int.TryParse(maPM, out int maPMFilter))
+        if (!string.IsNullOrEmpty(maCT) && int.TryParse(maCT, out int maCTFilter))
         {
             allCTPhieuMuonTT2 = allCTPhieuMuonTT2
-                .Where(pm => pm.MaPhieuMuon == maPMFilter)
+                .Where(pm => pm.MaCT == maCTFilter)
                 .ToList();
         }
         var model = new ListPhieuMuonTraResponse
@@ -73,13 +78,18 @@ public class PhieuTraController : Controller
 
         return RedirectToAction("Index");
     }
-    public ActionResult ThemPhieuTra()
+  
+    public async Task<IActionResult> ThemPhieuTra()
     {
-        var allCTPhieuMuonTT2 = phieuMuonService.LayCTPhieuMuonTheoTT(2).Result;
-        var model = new ListPhieuMuonTraResponse
+        var userId = HttpContext.Session.GetString("UserId");
+        var allCTPhieuMuonTT2 = await phieuMuonService.LayCTPhieuMuonTheoTTVaMaNG(2, userId);
+        var allPhieuTra = await phieuTraService.LayPhieuTra();
+        var PhieutraChuaDuyet = await phieuTraService.LayCTPhieuTraTheoTTVaMaNG(false, userId);
+
+        var model = new ThemPhieuTraResponse
         {
             ListPTDaDuyet = null,
-            ListPTChuaDuyet = null,
+            ListPTChuaDuyet = PhieutraChuaDuyet,
             ChiTietPhieuMuons = allCTPhieuMuonTT2,
         };
         return View(model);

@@ -90,5 +90,13 @@ namespace WEB.Api
             return await _apiService.PostDataAsync<ChiTietPhieuTra>("api/PhieuTra/ThemCTPhieuTra", chiTiet);
         }
 
+        public async Task<List<ChiTietPhieuTra>> LayCTPhieuTraTheoTTVaMaNG(bool TT, string maNG)
+        {
+            string url = $"/api/PhieuTra/LayCTPTTheoTinhTrangVaNguoiGui/{TT}/{maNG}";
+            var response = await _apiService.GetDataAsync<List<ChiTietPhieuTra>>(url);
+
+            return response ?? new List<ChiTietPhieuTra>();
+        }
+
     }
 }

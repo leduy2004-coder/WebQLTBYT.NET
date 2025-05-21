@@ -45,7 +45,13 @@ namespace WEB.Api
 
             return response ?? new List<ChiTietPhieuMuon>();
         }
+        public async Task<List<ChiTietPhieuMuon>> LayCTPhieuMuonTheoTTVaMaNG(int TT, string maNG)
+        {
+            string url = $"/api/PhieuMuon/LayCTPMTheoTinhTrangVaNguoiGui/{TT}/{maNG}";
+            var response = await _apiService.GetDataAsync<List<ChiTietPhieuMuon>>(url);
 
+            return response ?? new List<ChiTietPhieuMuon>();
+        }
 
         public async Task<bool> DuyetChiTietPhieuMuon(DuyetChiTietPhieuMuon dto)
         {

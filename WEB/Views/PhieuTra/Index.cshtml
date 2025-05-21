@@ -6,7 +6,7 @@
 
 <div class="container-fluid my-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-dark">Danh sách Chi Tiết Phiếu nhập</h2>
+        <h2 class="text-dark">Danh sách Chi Tiết Phiếu Trả</h2>
         <a href="@Url.Action("ThemPhieuTra", "PhieuTra")" class="btn btn-primary">
             <i class="fas fa-plus"></i> Thêm phiếu trả
         </a>
@@ -45,15 +45,15 @@
                 <div class="tab-pane fade show active" id="danhSachCTPhieuTraTT2" role="tabpanel" aria-labelledby="tab1-tab">
                     <div class="card shadow-sm">
                         <div class="card-body">
-                            <h5 class="card-title mb-4">Danh Sách Phiếu Trả</h5>
+                            <h5 class="card-title mb-4">Danh Sách Thiết Bị Đang Mượn</h5>
                             <!-- Search Form -->
                             <div class="mb-4">
                                 <form method="get" asp-action="Index" asp-controller="PhieuTra" class="d-flex align-items-center">
                                     <div class="input-group w-50">
-                                        <input type="number" class="form-control me-2" name="maPT" placeholder="Tìm theo Mã Phiếu Trả" value="@(ViewBag.MaPTFilter ?? "")">
+                                        <input type="number" class="form-control me-2" name="maCT" placeholder="Tìm theo Mã Chi Tiết" value="@(ViewBag.MaCTFilter ?? "")">
                                         <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Tìm kiếm</button>
                                     </div>
-                                    @if (!string.IsNullOrEmpty(ViewBag.MaPTFilter))
+                                    @if (!string.IsNullOrEmpty(ViewBag.MaCTFilter))
                                     {
                                         <a href="@Url.Action("Index", "PhieuTra")" class="btn btn-secondary ms-2">Xóa bộ lọc</a>
                                     }
@@ -64,7 +64,7 @@
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th><input type="checkbox" id="selectAll1"></th>
+            
                                         <th>Mã Chi Tiết</th>
                                         <th>Mã Thiết Bị</th>
                                         <th>Tên Thiết Bị</th>
@@ -88,7 +88,7 @@
                                         foreach (var chiTiet in Model.ChiTietPhieuMuons)
                                         {
                                             <tr>
-                                                <td><input type="checkbox"></td>
+    
                                                 <td>@chiTiet.MaCT</td>
                                                 <td>@chiTiet.MaTB</td>
                                                 <td>@(chiTiet.ThietBi?.TenThietBi ?? "N/A")</td>
@@ -204,8 +204,8 @@
                                             {
                                                 <tr>
                                                     <td>@phieuTra.MaPhieuTra</td>
-                                                    <td>@phieuTra.NguoiGui.HoTen</td>
-                                                    <td>@phieuTra.NgayTra.ToString("dd/MM/yyyy")</td>
+                                                    <td>@phieuTra?.NguoiGui?.HoTen</td>
+                                                    <td>@phieuTra?.NgayTra.ToString("dd/MM/yyyy")</td>
                                                     <td>
                                                         <button type="button" class="btn btn-info btn-sm view-chi-tiet" data-ma="@phieuTra.MaPhieuTra">
                                                             <i class="fas fa-eye"></i> Chi tiết

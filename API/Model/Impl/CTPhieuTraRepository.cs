@@ -21,6 +21,16 @@ namespace API.Model.Impl
                                 .Include(p => p.ThietBi)
                                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<ChiTietPhieuTra>> LayCTPTTheoTinhTrangVaNguoiGui(bool TT, string maNG)
+        {
+            return await _context.Set<ChiTietPhieuTra>()
+              .Include(ct => ct.ThietBi)
+              .Include(ct => ct.PhieuTra)
+              .Where(ct => ct.PhieuTra.MaNguoiGui == maNG && ct.PhieuTra.TinhTrang == TT)
+              .ToListAsync();
+        }
+
         public async Task<ChiTietPhieuTra> ThemCTPhieuTra(CTPhieuTraRequest chiTietPhieuTra)
         {
             var tbResponse = chiTietPhieuTra.Adapt<ChiTietPhieuTra>();

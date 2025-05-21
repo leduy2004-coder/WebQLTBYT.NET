@@ -1,4 +1,4 @@
-﻿@model WEB.Models.Response.ListPhieuMuonTraResponse
+﻿@model WEB.Models.Response.ThemPhieuTraResponse
 @{
     ViewData["Title"] = "Thêm Phiếu Trả";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -14,7 +14,7 @@
     </div>
 
     <!-- Form -->
-    <div class="card shadow-sm">
+    <div class="card shadow-sm mb-4">
         <div class="card-body">
             <form id="phieuNhapForm" asp-action="Create" asp-controller="PhieuTra" method="post">
                 <h5 class="card-title mb-4">Chi Tiết Phiếu Trả</h5>
@@ -38,6 +38,41 @@
                 </button>
                 <button type="submit" class="btn btn-primary mb-3 float-end" id="submitForm">Kết Thúc</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Unapproved Return Slips Table -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Danh Sách Phiếu Trả Chưa Duyệt</h5>
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-dark text-uppercase">
+                    <tr>
+                        <th>Mã Thiết Bị</th>
+                        <th>Tên Thiết Bị</th>
+                        <th>Số Lượng Trả</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.ListPTChuaDuyet == null || !Model.ListPTChuaDuyet.Any())
+                    {
+                        <tr>
+                            <td colspan="3" class="text-center">Không có phiếu trả chưa duyệt.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model.ListPTChuaDuyet)
+                        {
+                            <tr>
+                                <td>@item.MaTB</td>
+                                <td>@item.ThietBi?.TenThietBi</td>
+                                <td>@item.SoLuongTBTra</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -224,7 +259,9 @@
 </style>
 
 <script>
+    // Initialize chiTietList and pass ListPTChuaDuyet from Model to JavaScript
     let chiTietList = [];
+    const listPTChuaDuyet = @Html.Raw(Json.Serialize(Model.ListPTChuaDuyet ?? new List<WEB.Models.ChiTietPhieuTra>()));
 
     document.querySelectorAll('.thiet-bi-row').forEach(row => {
         row.addEventListener('click', function () {
@@ -246,16 +283,27 @@
         const tong = parseInt(document.getElementById('selectedSoLuongTong').value);
         const soLuong = parseInt(document.getElementById('soLuong').value);
 
-        if (!ma || isNaN(soLuong) || soLuong <= 0) return;
-
-        // Kiểm tra nếu số lượng trả > số lượng mượn
-        if (soLuong > tong) {
+        if (!ma || isNaN(soLuong) || soLuong <= 0) {
             const modal = new bootstrap.Modal(document.getElementById('duplicateAlertModal'));
-            document.getElementById('alertMessage').textContent = 'Số lượng trả không được lớn hơn số lượng đã mượn.';
+            document.getElementById('alertMessage').textContent = 'Vui lòng nhập số lượng trả hợp lệ.';
             modal.show();
             return;
         }
 
+        // Calculate total unapproved return quantity for this MaTB
+        const totalUnapproved = listPTChuaDuyet
+            .filter(item => item.maTB === ma)
+            .reduce((sum, item) => sum + item.soLuongTBTra, 0);
+
+        // Validate: soLuong <= (tong - totalUnapproved)
+        if (soLuong > (tong - totalUnapproved)) {
+            const modal = new bootstrap.Modal(document.getElementById('duplicateAlertModal'));
+            document.getElementById('alertMessage').textContent = `Số lượng trả không được vượt quá ${tong - totalUnapproved} (số lượng mượn còn lại sau khi trừ số lượng trả chưa duyệt).`;
+            modal.show();
+            return;
+        }
+
+        // Check for duplicate device
         if (chiTietList.some(x => x.ma === ma)) {
             const modal = new bootstrap.Modal(document.getElementById('duplicateAlertModal'));
             document.getElementById('alertMessage').textContent = 'Thiết bị đã được chọn.';
@@ -293,9 +341,9 @@
         hidden.innerHTML = '';
         chiTietList.forEach((item, index) => {
             hidden.innerHTML += `
-                    <input type="hidden" name="ChiTietPhieuTras[${index}].MaTB" value="${item.ma}">
-                    <input type="hidden" name="ChiTietPhieuTras[${index}].SoLuongTBTra" value="${item.soLuong}">
-                `;
+                <input type="hidden" name="ChiTietPhieuTras[${index}].MaTB" value="${item.ma}">
+                <input type="hidden" name="ChiTietPhieuTras[${index}].SoLuongTBTra" value="${item.soLuong}">
+            `;
         });
     }
 
