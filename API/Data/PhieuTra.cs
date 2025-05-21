@@ -9,7 +9,7 @@ namespace API.Data
         [Key]
         public int MaPhieuTra { get; set; }
 
-        [Required, StringLength(20)]
+        [StringLength(20)]
         public string MaNguoiGui { get; set; }
 
         [StringLength(20)]

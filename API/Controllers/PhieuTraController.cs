@@ -105,5 +105,35 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error deleting data.");
             }
         }
+        [HttpPost("ThemPhieuTra")]
+        public async Task<ActionResult> ThemPhieuTra(PhieuTraRequest phieuTra)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); // Trả về chi tiết lỗi
+            }
+            try
+            {
+                var phieu = await phieuTraRepository.ThemPhieuTra(phieuTra);
+                return Ok(phieu);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error creating data.");
+            }
+        }
+        [HttpPost("ThemCTPhieuTra")]
+        public async Task<ActionResult> ThemCTPhieuTra(CTPhieuTraRequest chiTiet)
+        {
+            try
+            {
+                var phieu = await cTPhieuTraRepository.ThemCTPhieuTra(chiTiet);
+                return Ok(phieu);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error creating data.");
+            }
+        }
     }
 }

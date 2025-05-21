@@ -2,7 +2,7 @@
 using WEB.Api;
 using WEB.Models;
 using WEB.Models.Response;
-
+using WEB.Models.Request;
 namespace WEB.Controllers;
 
 public class PhieuTraController : Controller
@@ -71,6 +71,44 @@ public class PhieuTraController : Controller
             TempData["MessageType"] = "danger";
         }
 
+        return RedirectToAction("Index");
+    }
+    public ActionResult ThemPhieuTra()
+    {
+        var allCTPhieuMuonTT2 = phieuMuonService.LayCTPhieuMuonTheoTT(2).Result;
+        var model = new ListPhieuMuonTraResponse
+        {
+            ListPTDaDuyet = null,
+            ListPTChuaDuyet = null,
+            ChiTietPhieuMuons = allCTPhieuMuonTT2,
+        };
+        return View(model);
+    }
+    [HttpPost]
+    public async Task<IActionResult> Create(List<ThemCTPhieuTraRequest> chiTietPhieuTras)
+    {
+        var userId = HttpContext.Session.GetString("UserId");
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var phieuTra = await phieuTraService.LuuPhieuTra(userId);
+
+        foreach (var chiTiet in chiTietPhieuTras)
+        {
+            var chiTietModel = new ChiTietPhieuTra
+            {
+                MaPhieuTra = phieuTra.MaPhieuTra,
+                MaTB = chiTiet.MaTB,
+                SoLuongTBTra = chiTiet.SoLuongTBTra
+            };
+
+            await phieuTraService.LuuCTPhieuTra(chiTietModel);
+        }
+
+        TempData["Message"] = "Thêm phiếu trả thành công!";
+        TempData["MessageType"] = "success";
         return RedirectToAction("Index");
     }
 }
