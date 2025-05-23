@@ -1,0 +1,215 @@
+@model IEnumerable<WEB.Models.DanhMucTB>
+@{
+    ViewData["Title"] = "Danh Mục Thiết Bị";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid my-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-dark">Danh Mục Thiết Bị</h2>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+            <i class="fas fa-plus"></i> Thêm danh mục
+        </button>
+    </div>
+
+    <!-- Danh Muc Table -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Mã Danh Mục</th>
+                        <th>Tên Danh Mục</th>
+                        <th>Mô Tả</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.MaDanhMuc</td>
+                                <td>@item.TenDanhMuc</td>
+                                <td>@item.MoTa</td>
+                                <td>
+                                    <button type="button" class="btn btn-info btn-sm me-1" title="Sửa" onclick="editCategory('@item.MaDanhMuc', '@item.TenDanhMuc', '@item.MoTa')">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm" title="Xóa" onclick="deleteCategory('@item.MaDanhMuc')">
+                                        <i class="fas fa-trash"></i> Xóa
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center">Không có danh mục nào.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Thêm Danh Mục Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="ThemDanhMuc" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="maDanhMuc" class="form-label">Mã Danh Mục</label>
+                        <input type="text" class="form-control" id="maDanhMuc" name="MaDanhMuc" required maxlength="20">
+                    </div>
+                    <div class="mb-3">
+                        <label for="tenDanhMuc" class="form-label">Tên Danh Mục</label>
+                        <input type="text" class="form-control" id="tenDanhMuc" name="TenDanhMuc" required maxlength="50">
+                    </div>
+                    <div class="mb-3">
+                        <label for="moTa" class="form-label">Mô Tả</label>
+                        <textarea class="form-control" id="moTa" name="MoTa" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Cập Nhật Danh Mục</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="CapNhatDanhMuc" method="post">
+                <div class="modal-body">
+                    <input type="hidden" id="editMaDanhMuc" name="maDanhMuc">
+                    <div class="mb-3">
+                        <label for="editTenDanhMuc" class="form-label">Tên Danh Mục</label>
+                        <input type="text" class="form-control" id="editTenDanhMuc" name="TenDanhMuc" required maxlength="50">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editMoTa" class="form-label">Mô Tả</label>
+                        <textarea class="form-control" id="editMoTa" name="MoTa" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-info">Cập Nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác Nhận Xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa danh mục <strong id="deleteMaDanhMuc"></strong> không?</p>
+                <form id="deleteForm" method="post" asp-action="XoaDanhMuc">
+                    <input type="hidden" id="deleteMaDanhMucInput" name="maDanhMuc">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" form="deleteForm" class="btn btn-danger">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+        border: none;
+    }
+    .card-body {
+        padding: 20px;
+    }
+    .table th {
+        background-color: #2A5C8E;
+        color: white;
+        text-transform: uppercase;
+    }
+    .table td {
+        vertical-align: middle;
+    }
+    .btn-primary {
+        background-color: #2A5C8E;
+        border: none;
+    }
+    .btn-primary:hover {
+        background-color: #1A3C5E;
+    }
+    .btn-info {
+        background-color: #17a2b8;
+        border: none;
+    }
+    .btn-info:hover {
+        background-color: #138496;
+    }
+    .btn-danger {
+        background-color: #dc3545;
+        border: none;
+    }
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+    }
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+    .modal-content {
+        border-radius: 10px;
+    }
+    .modal-header {
+        background-color: #2A5C8E;
+        color: white;
+        border-bottom: none;
+    }
+    .modal-title {
+        font-weight: bold;
+    }
+    .btn-close {
+        filter: invert(1);
+    }
+</style>
+
+<script>
+    function editCategory(maDanhMuc, tenDanhMuc, moTa) {
+        document.getElementById('editMaDanhMuc').value = maDanhMuc;
+        document.getElementById('editTenDanhMuc').value = tenDanhMuc;
+        document.getElementById('editMoTa').value = moTa;
+        new bootstrap.Modal(document.getElementById('editModal')).show();
+    }
+    function deleteCategory(maDanhMuc) {
+        document.getElementById('deleteMaDanhMuc').innerText = maDanhMuc;
+        document.getElementById('deleteMaDanhMucInput').value = maDanhMuc;
+        new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    }
+</script> 

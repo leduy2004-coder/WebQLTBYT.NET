@@ -38,6 +38,7 @@ builder.Services.AddScoped<ThietBiService>();
 builder.Services.AddScoped<PhieuNhapService>();
 builder.Services.AddScoped<PhieuTraService>();
 builder.Services.AddScoped<PhieuMuonService>();
+builder.Services.AddScoped<DanhMucTBService>();
 
 var app = builder.Build();
 

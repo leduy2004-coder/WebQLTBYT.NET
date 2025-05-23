@@ -1,17 +1,17 @@
-﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WEB.Models
+namespace WEB.Models.Request
 {
-    public class DanhMucTB
+    public class DanhMucTBRequest
     {
+        [Required]
         [StringLength(20)]
         public string MaDanhMuc { get; set; }
 
+        [Required]
         [StringLength(50)]
         public string TenDanhMuc { get; set; }
 
         public string MoTa { get; set; }
     }
-}
+} 
