@@ -30,6 +30,8 @@ builder.Services.AddTransient<IPhieuNhapRepository, PhieuNhapRepository>();
 builder.Services.AddTransient<IPhieuMuonRepository, PhieuMuonRepository>();
 builder.Services.AddTransient<IPhieuTraRepository, PhieuTraRepository>();
 builder.Services.AddTransient<IThongKeRepository, ThongKeRepository>();
+// mới thêm
+builder.Services.AddTransient<IDanhMucTBRepository, DanhMucTBRepository>();
 
 // Thêm service kiểm tra phiếu mượn
 builder.Services.AddTransient<IKiemTraPhieuMuonService, KiemTraPhieuMuonService>();
