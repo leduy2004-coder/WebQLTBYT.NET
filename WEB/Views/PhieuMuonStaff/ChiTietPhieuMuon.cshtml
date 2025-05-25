@@ -43,6 +43,7 @@
                     <th>Ngày Dự Kiến Trả</th>
                     <th>Tình Cần Thiết</th>
                     <th>Tình Trạng</th>
+                    <th>Thông báo</th>
                 </tr>
             </thead>
             <tbody>
@@ -93,7 +94,21 @@
                                 }
                                 <span class="badge @tinhTrangClass">@tinhTrangText</span>
                             </td>
+                            <td>
+                                @{
+                                    var today = DateTime.Today;
+                                    if (chiTiet.NgayDuKienTra.Date == today)
+                                    {
+                                        <span class="badge bg-warning text-dark">Đến hạn trả</span>
+                                    }
+                                    else if (chiTiet.NgayDuKienTra.Date < today)
+                                    {
+                                        <span class="badge bg-danger">Trễ hạn</span>
+                                    }
+                                }
+                            </td>
                         </tr>
+
                     }
                 }
             </tbody>

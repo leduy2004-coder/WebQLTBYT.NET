@@ -19,7 +19,12 @@ namespace WEB.Api
 
             return response ?? new List<PhieuMuon>();
         }
+        public async Task<List<ChiTietPhieuMuon>> LayTatCaCTPM()
+        {
+            var response = await _apiService.GetDataAsync<List<ChiTietPhieuMuon>>("/api/PhieuMuon/LayTatCaChiTietPhieuMuon");
 
+            return response ?? new List<ChiTietPhieuMuon>();
+        }
 
         public async Task<PhieuMuon> LayPMTheoMa(int maPM)
         {

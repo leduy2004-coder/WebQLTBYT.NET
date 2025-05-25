@@ -162,5 +162,22 @@ namespace API.Controllers
                 return StatusCode(500, "Lỗi khi cập nhật phiếu mượn.");
             }
         }
+        [HttpGet("LayTatCaChiTietPhieuMuon")]
+        public async Task<IActionResult> LayTatCaCTPM()
+        {
+            try
+            {
+                var result = await phieuMuonRepository.LayTatCaChiTietPhieuMuon(); // Gọi repository
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                // Ghi log lỗi
+                Console.WriteLine($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving data.");
+            }
+        }
+
     }
 }
