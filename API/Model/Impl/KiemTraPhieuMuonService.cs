@@ -2,6 +2,7 @@ using API.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace API.Model.Impl
 {
@@ -23,10 +24,27 @@ namespace API.Model.Impl
                 .Where(ct => ct.TinhTrang == 1 && ct.NgayMuon.Date < currentDate)
                 .ToListAsync();
 
-            // Cập nhật tình trạng thành 3 (từ chối) cho các phiếu mượn quá hạn
-            foreach (var phieu in phieuMuonQuaHan)
+            // Lấy danh sách các mã phiếu mượn cần cập nhật
+            var maPhieuMuonList = phieuMuonQuaHan.Select(p => p.MaPhieuMuon).Distinct().ToList();
+
+            // Cập nhật tất cả chi tiết phiếu mượn có cùng mã phiếu mượn
+            var allChiTietToUpdate = await _context.ChiTietPhieuMuon
+                .Where(ct => maPhieuMuonList.Contains(ct.MaPhieuMuon))
+                .ToListAsync();
+
+            foreach (var chiTiet in allChiTietToUpdate)
             {
-                phieu.TinhTrang = 3;
+                chiTiet.TinhTrang = 3; // Cập nhật tình trạng thành từ chối
+            }
+
+            // Cập nhật tình trạng phiếu mượn thành đã duyệt (1)
+            var phieuMuonToUpdate = await _context.PhieuMuon
+                .Where(pm => maPhieuMuonList.Contains(pm.MaPhieuMuon))
+                .ToListAsync();
+
+            foreach (var phieuMuon in phieuMuonToUpdate)
+            {
+                phieuMuon.TinhTrang = true; // Đã duyệt
             }
 
             await _context.SaveChangesAsync();

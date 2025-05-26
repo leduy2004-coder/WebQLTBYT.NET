@@ -25,7 +25,7 @@ namespace WEB.Controllers
             var allPhieuMuon = await _phieuMuonService.LayPhieuMuon();
             var allChiTietPhieuMuon = await _phieuMuonService.LayTatCaCTPM();
             var danhSachMaPhieuMuon = allChiTietPhieuMuon
-                .Where(ct => ct.NgayDuKienTra.Date <= DateTime.Today)
+                .Where(ct => ct.NgayDuKienTra.Date <= DateTime.Today && ct.TinhTrang == 2)
                 .Select(ct => ct.MaPhieuMuon)
                 .Distinct() // tránh trùng mã nếu nhiều thiết bị thuộc cùng 1 phiếu
                 .ToList();
