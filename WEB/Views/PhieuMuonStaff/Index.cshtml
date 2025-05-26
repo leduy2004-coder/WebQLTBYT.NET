@@ -1,4 +1,4 @@
-@model List<WEB.Models.Response.PhieuMuon>
+@model WEB.Models.Response.PhieuMuonIndexViewModel
 
 @{
     ViewData["Title"] = "Danh Sách Phiếu Mượn";
@@ -62,7 +62,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if (Model == null || !Model.Any())
+                        @if (Model == null || !Model.DanhSachPhieuMuon.Any())
                         {
                             <tr>
                                 <td colspan="5" class="text-center">Không có phiếu mượn nào.</td>
@@ -70,10 +70,19 @@
                         }
                         else
                         {
-                            @foreach (var item in Model)
+                            @foreach (var item in Model.DanhSachPhieuMuon)
                             {
+                                var isQuaHan = Model.DanhSachMaPhieuQuaHan.Contains(item.MaPhieuMuon);
+
                                 <tr>
-                                    <td>@item.MaPhieuMuon</td>
+                                    
+                                    <td>
+                                        @item.MaPhieuMuon
+                                        @if (isQuaHan)
+                                        {
+                                            <i class="fas fa-exclamation-circle text-danger ms-1" title="Đến hạn hoặc trễ hạn"></i>
+                                        }
+                                    </td>
                                     <td>@(item.NgayTao?.ToString("dd/MM/yyyy") ?? "N/A")</td>
                                     <td>
                                         @if (item.TinhTrang)

@@ -148,5 +148,13 @@ namespace API.Model.Impl
                 return false;
             }
         }
+        public async Task<IEnumerable<ChiTietPhieuMuon>> LayTatCaChiTietPhieuMuon()
+        {
+            var danhSachCTM = await _context.ChiTietPhieuMuon
+                .Include(c => c.ThietBi) // Load thông tin thiết bị nếu cần
+                .ToListAsync();
+
+            return danhSachCTM;
+        }
     }
 }

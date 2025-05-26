@@ -11,5 +11,6 @@ namespace API.Model
         Task<PhieuMuon> ThemPhieuMuon(ThemPhieuMuonRequest request);
         Task<bool> XoaPhieuMuon(int maPM);
         Task<bool> CapNhatPhieuMuon(int maPM, CapNhatPhieuMuonRequest request);
+        Task<IEnumerable<ChiTietPhieuMuon>> LayTatCaChiTietPhieuMuon();
     }
 }

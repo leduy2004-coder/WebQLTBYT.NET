@@ -23,10 +23,15 @@ namespace WEB.Controllers
         {
             var userId = User.Identity.Name; // Lấy ID của user đang đăng nhập
             var allPhieuMuon = await _phieuMuonService.LayPhieuMuon();
-            
+            var allChiTietPhieuMuon = await _phieuMuonService.LayTatCaCTPM();
+            var danhSachMaPhieuMuon = allChiTietPhieuMuon
+                .Where(ct => ct.NgayDuKienTra.Date <= DateTime.Today)
+                .Select(ct => ct.MaPhieuMuon)
+                .Distinct() // tránh trùng mã nếu nhiều thiết bị thuộc cùng 1 phiếu
+                .ToList();
+
             // Lọc chỉ lấy phiếu mượn của staff hiện tại
             var phieuMuonList = allPhieuMuon.Where(pm => pm.MaNguoiGui == userId);
-
             // Lọc theo mã phiếu mượn nếu có
             if (maPM.HasValue)
             {
@@ -40,8 +45,13 @@ namespace WEB.Controllers
                 phieuMuonList = phieuMuonList.Where(pm => pm.TinhTrang == tinhTrang.Value);
                 ViewBag.TinhTrangFilter = tinhTrang;
             }
+            var viewModel = new PhieuMuonIndexViewModel
+            {
+                DanhSachPhieuMuon = phieuMuonList.ToList(),
+                DanhSachMaPhieuQuaHan = danhSachMaPhieuMuon
+            };
 
-            return View(phieuMuonList.ToList());
+            return View(viewModel);
         }
 
         public async Task<IActionResult> ChiTietPhieuMuon(int maPM)
