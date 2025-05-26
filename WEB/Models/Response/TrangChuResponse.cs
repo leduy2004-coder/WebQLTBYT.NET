@@ -1,6 +1,4 @@
-﻿
-
-namespace WEB.Models.Response
+﻿namespace WEB.Models.Response
 {
     public class TrangChuResponse
     {
@@ -8,7 +6,7 @@ namespace WEB.Models.Response
         public String maDMDuocChon { get; set; }
 
         public List<ThietBi> listTBTheoDM { get; set; }
-
+        public String SearchTerm { get; set; }
     }
 
 }

@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Mvc;
 using WEB.Api;
 using WEB.Models.Response;
@@ -15,7 +14,7 @@ public class TrangChuController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(String maDM)
+    public async Task<IActionResult> Index(String maDM, String searchTerm)
     {
         if(string.IsNullOrEmpty(maDM))
         {
@@ -23,11 +22,22 @@ public class TrangChuController : Controller
         }
         var listDanhMuc = await thietBiService.LayDanhMuc();
         var listThietBi = await thietBiService.LayTBTheoDM(maDM);
+        
+        // Apply search filter if searchTerm is provided
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            listThietBi = listThietBi.Where(tb => 
+                tb.TenThietBi.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                tb.MaThietBi.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+        }
+
         var model = new TrangChuResponse
         {
             listDanhMuc = listDanhMuc.ToList(),
             maDMDuocChon = maDM,
-            listTBTheoDM = listThietBi.ToList(),   
+            listTBTheoDM = listThietBi.ToList(),
+            SearchTerm = searchTerm
         };
 
         return View(model);

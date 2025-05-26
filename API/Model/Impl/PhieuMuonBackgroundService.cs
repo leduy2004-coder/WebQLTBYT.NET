@@ -22,6 +22,20 @@ namespace API.Model.Impl
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            // Thực hiện kiểm tra ngay khi service bắt đầu
+            try
+            {
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var kiemTraService = scope.ServiceProvider.GetRequiredService<IKiemTraPhieuMuonService>();
+                    await kiemTraService.KiemTraPhieuMuonQuaHan();
+                    _logger.LogInformation("Đã kiểm tra và cập nhật phiếu mượn quá hạn ngay khi khởi động lúc {time}", DateTime.Now);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi kiểm tra phiếu mượn quá hạn lúc khởi động");
+            }
             while (!stoppingToken.IsCancellationRequested)
             {
                 var now = DateTime.Now;

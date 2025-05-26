@@ -1,0 +1,73 @@
+@model IEnumerable<WEB.Models.ThietBi>
+
+<div class="modal fade" id="deviceListModal" tabindex="-1" aria-labelledby="deviceListModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deviceListModalLabel">
+                    @{
+                        var title = ViewBag.ListType switch
+                        {
+                            "total" => "Danh sách tất cả thiết bị",
+                            "available" => "Danh sách thiết bị còn lại",
+                            "category" => $"Danh sách thiết bị theo danh mục: {ViewBag.CategoryName}",
+                            _ => "Danh sách thiết bị"
+                        };
+                    }
+                    @title
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Mã thiết bị</th>
+                                <th>Tên thiết bị</th>
+                                <th>Danh mục</th>
+                                <th>Số lượng tổng</th>
+                                <th>Số lượng còn lại</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                @foreach (var device in Model)
+                                {
+                                    <tr>
+                                        <td>@device.MaThietBi</td>
+                                        <td>@device.TenThietBi</td>
+                                        <td>@(device.MaDanhMuc)</td>
+                                        <td>@device.SoLuongTong</td>
+                                        <td>@device.SoLuongCon</td>
+                                        <td>
+                                            @if (device.SoLuongCon > 0)
+                                            {
+                                                <span class="badge bg-success">Còn hàng</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Hết hàng</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center">Không có dữ liệu</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div> 

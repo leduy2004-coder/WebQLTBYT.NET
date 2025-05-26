@@ -1,5 +1,4 @@
-﻿
-@model WEB.Models.Response.TrangChuResponse
+﻿@model WEB.Models.Response.TrangChuResponse
 
 @{
     ViewData["Title"] = "Medical Equipment";
@@ -43,10 +42,19 @@
 
     <!-- Search Bar -->
     <div class="mb-4 d-flex justify-content-between align-items-center">
-        <div class="input-group w-50">
-            <input type="text" class="form-control" placeholder="Tìm kiếm thiết bị">
-            <button class="btn btn-primary"><i class="fas fa-search"></i></button>
-        </div>
+        <form method="get" action="@Url.Action("Index", "TrangChu")" class="d-flex w-50">
+            <input type="hidden" name="maDM" value="@Model.maDMDuocChon" />
+            <div class="input-group">
+                <input type="text" class="form-control" name="searchTerm" placeholder="Tìm kiếm thiết bị" value="@Model.SearchTerm">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+                @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                {
+                    <a href="@Url.Action("Index", "TrangChu", new { maDM = Model.maDMDuocChon })" class="btn btn-secondary">
+                        <i class="fas fa-times"></i>
+                    </a>
+                }
+            </div>
+        </form>
 
         @if (userRole == 4) // Inbound role
         {

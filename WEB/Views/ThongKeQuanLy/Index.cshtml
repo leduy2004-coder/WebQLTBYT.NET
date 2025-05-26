@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Thống kê hệ thống quản lý thiết bị";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -14,11 +13,11 @@
 
     <!-- Year-Independent Info Cards -->
     <div class="cards year-independent d-flex flex-wrap justify-content-around mb-5">
-        <div class="card stats-card shadow-sm text-center mb-3">
+        <div class="card stats-card shadow-sm text-center mb-3" style="cursor: pointer;" onclick="showDeviceList('total')">
             <h3><i class="fas fa-tools me-2"></i>Tổng thiết bị</h3>
             <p id="totalDevices">0</p>
         </div>
-        <div class="card stats-card shadow-sm text-center mb-3">
+        <div class="card stats-card shadow-sm text-center mb-3" style="cursor: pointer;" onclick="showDeviceList('available')">
             <h3><i class="fas fa-check-circle me-2"></i>Thiết bị còn lại</h3>
             <p id="availableDevices">0</p>
         </div>
@@ -26,7 +25,7 @@
 
     <!-- Pie Chart -->
     <div class="pie-chart-section mb-5">
-        <div class="card chart-card shadow-sm p-3 mx-auto" style="max-width: 500px;">
+        <div class="card chart-card shadow-sm p-3 mx-auto" style="max-width: 500px; cursor: pointer;" onclick="showDeviceList('category')">
             <h5 class="card-title text-center">Tỷ lệ thiết bị theo danh mục</h5>
             <div class="chart-container pie-chart-container">
                 <canvas id="deviceCategoryChart"></canvas>
@@ -324,6 +323,34 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
+    // Di chuyển hàm showDeviceList ra ngoài
+    function showDeviceList(type, categoryId = null) {
+        if (type === 'category' && !categoryId) {
+            console.error('Category ID is required for category type');
+            return;
+        }
+
+        const url = categoryId 
+            ? `/ThongKeQuanLy/GetDeviceList?type=${type}&categoryId=${categoryId}`
+            : `/ThongKeQuanLy/GetDeviceList?type=${type}`;
+
+        $.get(url)
+            .done(function(data) {
+                $('#deviceListModal').remove();
+                $('body').append(data);
+                $('#deviceListModal').modal('show');
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                console.error('Error loading device list:', textStatus, errorThrown);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Không thể tải danh sách thiết bị. Vui lòng thử lại.',
+                    confirmButtonColor: '#2A5C8E'
+                });
+            });
+    }
+
     document.addEventListener('DOMContentLoaded', async function () {
         // API base URL
         const apiBaseUrl = 'https://localhost:7079';
@@ -434,7 +461,9 @@
                                   const errorText = await res.text();
                                   throw new Error(`PhanBoTheoDanhMuc failed: Status ${res.status}, ${errorText}`);
                               }
-                              return res.json();
+                              const data = await res.json();
+                              console.log('Danh mục data from API:', data); // Debug log
+                              return data;
                           })
                         : Promise.resolve(cachedYearIndependentData.danhMucData),
                     fetch(`${apiBaseUrl}/api/ThongKe/ThongKeMuonTraTheoThang/${year}`).then(async res => {
@@ -550,28 +579,69 @@
 
                 // Biểu đồ Pie: Phân bố thiết bị theo danh mục (only on initial load)
                 if (isInitialLoad && !deviceCategoryChart) {
-                    deviceCategoryChart = new Chart(document.getElementById('deviceCategoryChart'), {
-                        type: 'pie',
-                        data: {
-                            labels: danhMucData.map(item => item.danhMuc || 'Unknown'),
-                            datasets: [{
-                                data: danhMucData.map(item => item.tongSoLuong || 0),
-                                backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF']
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom',
-                                    labels: { font: { size: 12 } }
+                    console.log('Initializing pie chart with data:', danhMucData); // Debug log
+                    
+                    // Lấy danh sách danh mục từ API
+                    fetch(`${apiBaseUrl}/api/DanhMucTB`)
+                        .then(res => res.json())
+                        .then(danhMucList => {
+                            // Tạo map để lưu trữ maDanhMuc theo tên danh mục
+                            const danhMucMap = new Map(danhMucList.map(dm => [dm.tenDanhMuc, dm.maDanhMuc]));
+                            
+                            deviceCategoryChart = new Chart(document.getElementById('deviceCategoryChart'), {
+                                type: 'pie',
+                                data: {
+                                    labels: danhMucData.map(item => item.danhMuc || 'Unknown'),
+                                    datasets: [{
+                                        data: danhMucData.map(item => item.tongSoLuong || 0),
+                                        backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF']
+                                    }]
                                 },
-                                tooltip: tooltipOptions
-                            }
-                        }
-                    });
-                    console.log('Pie chart rendered successfully.');
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            position: 'bottom',
+                                            labels: { font: { size: 12 } }
+                                        },
+                                        tooltip: tooltipOptions
+                                    },
+                                    onClick: function(event, elements) {
+                                        if (elements && elements.length > 0) {
+                                            const index = elements[0].index;
+                                            const category = danhMucData[index];
+                                            console.log('Clicked category:', category); // Debug log
+                                            
+                                            // Lấy maDanhMuc từ map dựa vào tên danh mục
+                                            const maDanhMuc = danhMucMap.get(category.danhMuc);
+                                            
+                                            if (maDanhMuc) {
+                                                showDeviceList('category', maDanhMuc);
+                                            } else {
+                                                console.error('Invalid category data:', category);
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Lỗi',
+                                                    text: 'Không thể xác định danh mục thiết bị.',
+                                                    confirmButtonColor: '#2A5C8E'
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                            console.log('Pie chart rendered successfully.');
+                        })
+                        .catch(error => {
+                            console.error('Error loading categories:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi',
+                                text: 'Không thể tải danh sách danh mục.',
+                                confirmButtonColor: '#2A5C8E'
+                            });
+                        });
                 }
 
                 // Biểu đồ Stacked Bar: Thiết bị mượn/trả theo tháng
